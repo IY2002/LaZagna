@@ -27,8 +27,8 @@ if ! apptainer exec --no-home --cleanenv "$SIF" test -d /opt/LaZagna/base_rrg; t
   echo "FATAL: lazagna.sif is STALE. rm lazagna.sif && bash submit_campaign.sh"; exit 1
 fi
 
-export APPTAINERENV_WORK="/work"
-apptainer exec --no-home --cleanenv \
-  -B "$WORK_ROOT:/work" -B "$CAMPAIGN/campaign:/campaign" \
+. "$CAMPAIGN/campaign/binds.sh"
+lazagna_binds "$WORK_ROOT/collect"
+apptainer exec --no-home --cleanenv "${BINDS[@]}" \
   "$SIF" python3 /campaign/collect_results.py /work/campaign_summary.md /work
 echo "SUMMARY: $WORK_ROOT/campaign_summary.md"

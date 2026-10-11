@@ -47,7 +47,11 @@ def setup_benchmark_files(run_params):
         elif is_verilog_benchmarks and benchmarks_dir == original_dir + "/benchmarks/eltwise":
             top_module_names = eltwise_top_modules
         else:
-            top_module_names = {}
+            # Single-design or custom dirs: look the top module up by file name across every
+            # known suite (VTR designs often name their top differently from the file).
+            top_module_names = {**ITD_paper_top_modules, **ITD_subset_top_modules,
+                                **ITD_quick_top_modules, **VTR_benchmarks_top_modules,
+                                **eltwise_top_modules}
 
         if is_verilog_benchmarks:
             blif_files = get_files_with_extension(benchmarks_dir, ".v")

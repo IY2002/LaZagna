@@ -121,3 +121,7 @@ campaign_*.err
 *.sif
 *_overlay.img
 PAPER_PLAN.docx
+characterize_*.out
+characterize_*.err
+fftest_*.out
+fftest_*.err

@@ -1,85 +1,67 @@
-# Phase 3 — eltwise TRUE 2D-vs-3D at the channel width the 2D arch needs (paper headline:
-# % improvement of 3D over a real 1-layer 2D baseline). Cluster priority (laptop OOM'd here).
+# 3D vs 2D at equal resources (paper headline), for one or more designs.
 #
-# Approach: instead of a fragile standalone min-W probe, auto-find a routable cw by trying an
-# ascending list; the first cw at which the 1-layer 2D arch routes eltwise is used for BOTH the
-# 2D baseline and the 3D run (same cw = fair comparison). cw list overridable via CW env
-# (e.g. CW=300). The chosen cw is a REASONED value (2D was unroutable at cw150 on the laptop);
-# CONFIRM it is sensible for the paper.
-# argv: [seeds=3]
+# For each design: synthesize + pack once (shared /prep cache), size the 2D device to the
+# design ("2D sets the size": binding resource at TARGET_UTIL), size the 3D device to the
+# same total tile count over two layers, then route the evenly spread reference layout on
+# both, with the SAME seeds, at the lab-standard channel width.
+#
+# History: the old version wrote a two-layer layout into the single-die 2D template, so
+# the "2D baseline" was two dies with no vertical routing; it never routed at any cw.
+# argv: [seeds=3]   env: DESIGNS_2DVS3D ("koios/eltwise_layer"), CW (300), TALL (1),
+#                        TARGET_UTIL (0.8)
 import os
+import re
+import shutil
 import sys
-ROOT = os.environ.get("LAZAGNA_ROOT", "/opt/LaZagna")
-os.chdir(ROOT)
-sys.path.insert(0, ROOT)
 
-from lazagna_optuna import SearchConfig, _run_one
-from layout_space import NAMED_LAYOUTS
+ROOT = os.environ.get("LAZAGNA_ROOT", "/opt/LaZagna")
+CODE = os.environ.get("LAZAGNA_CODE", ROOT)
+WORK = os.environ.get("WORK", "/work")
+os.chdir(ROOT)
+sys.path[:0] = [CODE, ROOT]
+
+from lazagna_optuna import SearchConfig, autosize, reference_columns, _run_one
 
 SEEDS = int(sys.argv[1]) if len(sys.argv) > 1 else 3
-# Fixed at the lab standard of 300 for both the 2D and 3D sides, so the comparison is at
-# one width and there is no probing. Previously this tried 200, 300 and 400 in turn, which
-# cost a full flow run per failed width.
 CW = int(os.environ.get("CW", "300"))
-TAG = "e2d3d"
+TALL = os.environ.get("TALL", "1") != "0"
+TARGET_UTIL = float(os.environ.get("TARGET_UTIL", "0.8"))
+DESIGNS = [d for d in re.split(r"[,\s]+", os.environ.get("DESIGNS_2DVS3D", "koios/eltwise_layer")) if d]
+SUITES = {"koios": "benchmarks/koios", "vtr": "benchmarks/VTR_benchmarks"}
 
-# Benchmark dir lives on the HOST work dir (container benchmarks/ is read-only; the old
-# in-container copy needed the overlay, which is gone).
-WORK = os.environ.get("WORK", "/work")
-BENCH_DIR = os.path.join(WORK, "bench", "koios_elt")
 
-cfg = SearchConfig(
-    lazagna_root=ROOT,
-    benchmark_dir=BENCH_DIR,
-    is_verilog=True,
-    width=36, height=36, width_2d=44, height_2d=44,
-    channel_width=CW, seeds=SEEDS,
-    arch_type="combined", search_mode="columns",
-    template_path="arch_files/templates/dsp_bram/vtr_arch_dsp_bram.xml",
-    template_2d_path="arch_files/templates/dsp_bram/vtr_2d_arch_dsp_bram.xml",
-    connectivity_choices=(1.0,),
-)
+def run_design(entry: str) -> bool:
+    suite, name = entry.split("/", 1)
+    bdir = os.path.join(WORK, "bench", "e2d3d_" + name)
+    os.makedirs(bdir, exist_ok=True)
+    dst = os.path.join(bdir, name + ".v")
+    if not os.path.exists(dst):
+        shutil.copy(os.path.join(ROOT, SUITES[suite], name + ".v"), dst)
+    tdir = "dsp_bram_tall" if TALL else "dsp_bram"
+    base = SearchConfig(lazagna_root=ROOT, benchmark_dir=bdir, is_verilog=True,
+                        channel_width=CW, seeds=SEEDS, seed_list=tuple(range(1, SEEDS + 1)),
+                        arch_type="combined", search_mode="columns", prep_dir="/prep",
+                        target_util=TARGET_UTIL, fidelity="route", run_tag="e2d3d",
+                        template_path=f"arch_files/templates/{tdir}/vtr_arch_dsp_bram.xml",
+                        template_2d_path=f"arch_files/templates/{tdir}/vtr_2d_arch_dsp_bram.xml")
+    cfg, info = autosize(base)
+    print(f"[{name}] demand {info['demand']}: 2D {cfg.width_2d}x{cfg.height_2d} "
+          f"({info['tiles_2d']} tiles) vs 3D 2x{cfg.width}x{cfg.height} ({info['tiles_3d']} tiles)",
+          flush=True)
+    tag = name.replace(".", "").replace("_", "")
+    two, err2 = _run_one(cfg, None, f"e2d3d{tag}two", "2d", 1.0, 0.739)
+    three, err3 = _run_one(cfg, reference_columns(cfg), f"e2d3d{tag}three", cfg.arch_type, 1.0, 0.739)
+    if two is None or three is None:
+        print(f"[{name}] FAILED - FLAG. 2D: {err2}\n3D: {err3}", flush=True)
+        return False
+    (bc, bw), (c, w) = two, three
+    print(f"[{name}] cw={CW} seeds={cfg.seed_list}", flush=True)
+    print(f"[{name}] 2D: CPD={bc:.4e} s WL={bw:.0f}   3D: CPD={c:.4e} s WL={w:.0f}", flush=True)
+    print(f"[{name}] IMPROVEMENT: CPD {100*(bc-c)/bc:+.2f}%   WL {100*(bw-w)/bw:+.2f}%", flush=True)
+    return True
 
-def ensure_eltwise():
-    elt = os.path.join(cfg.benchmark_dir, "eltwise_layer.v")
-    if not os.path.exists(elt):
-        os.makedirs(cfg.benchmark_dir, exist_ok=True)
-        src = os.path.join(ROOT, "benchmarks", "koios", "eltwise_layer.v")
-        if not os.path.exists(src):
-            print(f"FATAL: {src} missing - FLAG", flush=True); sys.exit(1)
-        import shutil; shutil.copy(src, elt)
 
 if __name__ == "__main__":
-    ensure_eltwise()
-    aligned = NAMED_LAYOUTS["aligned"]
-
-    # --- 2D baseline at the standard width ---
-    cfg.channel_width = CW
-    print(f"[2D baseline] running at cw={CW} ...", flush=True)
-    base, err = _run_one(cfg, aligned, f"{TAG}base{CW}", "2d", 1.0, 0.739)
-    if base is None:
-        print(f"FATAL: 2D baseline did not route at cw={CW} - FLAG. stderr tail:\n"
-              f"{(err or '')[-1500:]}", flush=True)
-        sys.exit(1)
-    chosen_cw = CW
-    print(f"[2D baseline] cw={CW}: CPD={base[0]:.4e} WL={base[1]:.0f}", flush=True)
-
-    # --- 3D run at the SAME cw (fair comparison), aligned 3D layout ---
-    cfg.channel_width = chosen_cw
-    print(f"[3D] running aligned 3D at cw={chosen_cw} ...", flush=True)
-    m3, err3 = _run_one(cfg, aligned, f"{TAG}threed{chosen_cw}", "combined", 1.0, 0.739)
-    if m3 is None:
-        print(f"FATAL: 3D run failed at cw={chosen_cw} - FLAG. stderr tail:\n{(err3 or '')[-1500:]}", flush=True)
-        sys.exit(1)
-
-    bcpd, bwl = base; cpd, wl = m3
-    cpd_impr = 100.0 * (bcpd - cpd) / bcpd
-    wl_impr = 100.0 * (bwl - wl) / bwl
-    print("==== PHASE 3 RESULT (3D vs true 2D) ====", flush=True)
-    print(f"cw={chosen_cw} seeds={SEEDS}", flush=True)
-    print(f"2D baseline: CPD={bcpd:.4e} s  WL={bwl:.0f}", flush=True)
-    print(f"3D aligned : CPD={cpd:.4e} s  WL={wl:.0f}", flush=True)
-    print(f"IMPROVEMENT: CPD {cpd_impr:+.2f}%   WL {wl_impr:+.2f}%", flush=True)
-    if not (-2 <= cpd_impr <= 20 and -2 <= wl_impr <= 20):
-        print("FLAG: improvement outside believable ~0-16% band; check for contamination/degenerate run", flush=True)
-    print("PHASE3 DONE", flush=True)
+    ok = [run_design(d) for d in DESIGNS]
+    print(f"PHASE3 DONE ({sum(ok)}/{len(ok)} designs)", flush=True)
+    sys.exit(0 if all(ok) else 1)

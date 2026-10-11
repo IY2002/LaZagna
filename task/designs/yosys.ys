@@ -3,20 +3,38 @@
 #########################
 # Parse input files
 #########################
-# Read verilog files
-read_verilog ${READ_VERILOG_OPTIONS} ${VERILOG_FILES}
+# Read verilog files.
+# -nooverwrite: VTR benchmark files carry VTR's hard-primitive simulation models
+# (single_port_ram / dual_port_ram / mult ...) pasted after designs that define modules of
+# the same name; the design's own (first) definition must win, not abort the read.
+read_verilog -nooverwrite ${READ_VERILOG_OPTIONS} ${VERILOG_FILES}
 # Read technology library
 read_verilog -lib -specify ${YOSYS_BRAM_CELL_SIM}
+# Those pasted models are marked (* keep_hierarchy *), which stops flatten and leaves
+# .subckt single_port_ram/dual_port_ram in the BLIF, cells this architecture has no model
+# for. Here they are ordinary behavioral memories that memory_bram maps to spram.
+setattr -mod -unset keep_hierarchy
 
 #########################
 # Prepare for synthesis
 #########################
 # Identify top module from hierarchy
-hierarchy -check -auto-top
+# Explicit top: with -auto-top, unused pasted primitives compete for top and Yosys picked
+# dual_port_ram as the top of diffeq1/diffeq2/sha, synthesizing an empty design.
+hierarchy -check -top ${TOP_MODULE}
 # - Convert process blocks to AST
 proc
 # Flatten all the gates/primitives
 flatten
+# Single-write-port memories. The spram has one port, so a memory written from two ports
+# (true dual-port) would fall back to flip-flops + LUTs. Study assumption: at most one write
+# per cycle, so the write ports are merged into one (address/data/enable taken from the
+# port that writes). Done here, before memory_collect, while read ports carry no per-write-
+# port masks. See merge_write_ports.py.
+write_rtlil merge_wp_in.il
+exec -expect-return 0 -- python3 ${YOSYS_MERGE_WRITE_PORTS} merge_wp_in.il merge_wp_out.il
+design -reset
+read_rtlil merge_wp_out.il
 # Identify tri-state buffers from 'z' signal in AST
 # with follow-up optimizations to clean up AST
 tribuf -logic
@@ -41,6 +59,11 @@ opt_clean
 # Inspired from synth_xilinx.cc
 #########################
 # Avoid merging any registers into DSP, reserve memory port registers first
+# Let memory_dff see read-port enables. RAMs written as "if (we) write else read" give
+# the read register an enable; under -nodffe it stays a feedback mux that memory_dff does
+# not recognize, the read port stays asynchronous and the memory cannot become a BRAM.
+# Enable FFs elsewhere are converted back later by dfflegalize, so the netlist is unchanged.
+opt_dff -nosdff
 memory_dff
 wreduce t:$mul
 

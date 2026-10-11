@@ -1,6 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, Union
 import xml.etree.ElementTree as ET
 
 
@@ -734,8 +734,16 @@ class PlacementOptions:
 
 @dataclass
 class SeedOptions:
-    mode: str = "fixed"
-    value: int = 1
+    mode: str = "fixed"   # "fixed" | "random" | "list"
+    value: Union[int, list[int]] = 1   # list mode: the exact seeds, e.g. [1, 2, 3]
+
+    @classmethod
+    def from_list(cls, seeds) -> "SeedOptions":
+        seeds = [int(s) for s in seeds]
+        return cls(mode="fixed", value=seeds[0]) if len(seeds) == 1 else cls(mode="list", value=seeds)
+
+    def count(self) -> int:
+        return len(self.value) if self.mode == "list" else (int(self.value) if self.mode == "random" else 1)
 
 
 @dataclass
@@ -766,6 +774,9 @@ class InterlayerDelayOptions:
 @dataclass
 class AdvancedOptions:
     additional_vpr_options: str = ""
+    # Stop after VPR: skips OpenFPGA fabric/Verilog/bitstream generation, which is most of
+    # the runtime and contributes nothing to CPD/WL.
+    vpr_only: bool = False
 
 
 @dataclass
@@ -848,12 +859,15 @@ class ExperimentOptions:
             },
             "advanced": {
                 "additional_vpr_options": self.advanced.additional_vpr_options,
+                "vpr_only": self.advanced.vpr_only,
             },
         }
 
 
 def run_lazagna(arch: Architecture, opts: ExperimentOptions, lazagna_root: Optional[str] = None,
-                timeout_s: Optional[int] = None) -> dict:
+                timeout_s: Optional[int] = None, num_workers: Optional[int] = None) -> dict:
+    """num_workers: parallel flow runs inside main.py (-j). Defaults to one per seed, since
+    each seed is an independent run and they otherwise execute one after another."""
     import os
     import signal
     import subprocess
@@ -886,7 +900,8 @@ def run_lazagna(arch: Architecture, opts: ExperimentOptions, lazagna_root: Optio
         # Own process group so a timeout kills yosys/VPR grandchildren too, not just main.py
         # (plain subprocess.run(timeout=...) leaves them orphaned and burning CPU).
         proc = subprocess.Popen(
-            ["python3", os.path.join(root, "lazagna", "main.py"), "-f", yaml_path],
+            ["python3", os.path.join(root, "lazagna", "main.py"), "-f", yaml_path,
+             "-j", str(num_workers or max(1, opts.seeds.count()))],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
             start_new_session=True,
         )

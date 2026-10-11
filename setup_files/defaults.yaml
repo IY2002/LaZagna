@@ -60,8 +60,10 @@ placement:
 seeds:
   mode: fixed           # "fixed"  = use one deterministic seed
                         # "random" = generate N random seeds
+                        # "list"   = use exactly these seeds
   value: 1              # fixed mode  → the seed value
                         # random mode → number of seeds to generate
+                        # list mode   → list of seeds, e.g. [1, 2, 3]
 
 
 # --- 3D Switch Block Configuration ---
@@ -98,3 +100,4 @@ interlayer_delay:
 # --- Advanced Options ---
 advanced:
   additional_vpr_options: ""            # Extra CLI flags passed to VPR (e.g. "--inner_num 0.5")
+  vpr_only: false                       # true = stop after VPR (no fabric/Verilog/bitstream generation)

@@ -6,6 +6,7 @@ import random
 from script_editing import update_config_simple, update_config_verilog
 from run_flow import *
 from printing import print_verbose
+from file_handling import infer_top_module
 import printing
 
 def run_one_benchmark(i, blif_file="", verilog_file="", act_file="", original_dir="", width="", height="", channel_width="", type_sb="full", percent_connectivity=0.5, place_algorithm="cube_bb", verilog_benchmarks=False, connection_type="subset", benchmark_top_name="", output_folder_name="", run_number=1, output_additional_info="", temp_template_dir=""):
@@ -23,7 +24,7 @@ def run_one_benchmark(i, blif_file="", verilog_file="", act_file="", original_di
         command = ["cp", temp_template_dir + "/task/designs/bitstream_script.openfpga", temp_template_dir + "/task/designs/vtr_arch.xml", temp_template_dir + "/task/designs/openfpga_arch.xml", temp_template_dir + "/task/designs/auto_sim_openfpga.xml", temp_task_dir + "/designs/"]
         run_command_in_temp_dir(command, original_dir)
 
-        command = ["cp", temp_template_dir + "/task/designs/yosys.ys", temp_template_dir + "/task/designs/bram_cell_sim.v", temp_template_dir + "/task/designs/bram_map.v",temp_template_dir + "/task/designs/bram.txt",temp_template_dir + "/task/designs/complex_dsp.v",temp_template_dir + "/task/designs/dsp_map.v", temp_task_dir + "/designs/"]
+        command = ["cp", temp_template_dir + "/task/designs/yosys.ys", temp_template_dir + "/task/designs/bram_cell_sim.v", temp_template_dir + "/task/designs/bram_map.v",temp_template_dir + "/task/designs/bram.txt",temp_template_dir + "/task/designs/complex_dsp.v",temp_template_dir + "/task/designs/dsp_map.v", temp_template_dir + "/task/designs/merge_write_ports.py", temp_task_dir + "/designs/"]
         run_command_in_temp_dir(command, original_dir)
 
         # design_variables file
@@ -91,7 +92,7 @@ ITD_paper_top_modules = {
                          "conv_layer.v":"conv_layer",
                          "dla_like.medium.v" :"DLA",
                          "dla_like.small.v" :"DLA",
-                         "dnnweaver.v" :"dnnweaver2_controller",
+                         "dnnweaver.v" :"cl_wrapper",
                          "eltwise_layer.v" :"eltwise_layer",
                          "lenet.v" :"myproject",
                          "lstm.v" :"top",
@@ -116,7 +117,7 @@ ITD_subset_top_modules = {
                          "conv_layer.v":"conv_layer",
                          "dla_like.medium.v" :"DLA",
                          "dla_like.small.v" :"DLA",
-                         "dnnweaver.v" :"dnnweaver2_controller",
+                         "dnnweaver.v" :"cl_wrapper",
                          "eltwise_layer.v" :"eltwise_layer",
                          "lstm.v" :"top",
                          "proxy.5.v" :"top",
@@ -134,7 +135,7 @@ ITD_quick_top_modules = {
                          "bwave_like.fixed.small.v" :"NPU",
                          "conv_layer_hls.v":"top",
                          "conv_layer.v":"conv_layer",
-                         "dnnweaver.v" :"dnnweaver2_controller",
+                         "dnnweaver.v" :"cl_wrapper",
                          "eltwise_layer.v" :"eltwise_layer",
                          "reduction_layer.v" :"reduction_layer",
                          "robot_rl.v":"robot_maze",
@@ -225,7 +226,8 @@ def run_interface(params):
             sb_3d_switch_name=params['sb_switch_name'],
             base_delay_switch=params['base_delay_switch'],
             switch_interlayer_pairs=params['switch_interlayer_pairs'],
-            update_arch_delay=params['update_arch_delay']
+            update_arch_delay=params['update_arch_delay'],
+            vpr_only=params.get('vpr_only', False)
         )
 
         output_identifier = params['cur_loop_identifier']
@@ -267,7 +269,7 @@ def run_interface(params):
                         place_algorithm=params['place_algorithm'],                        # placement algorithm
                         verilog_benchmarks=params['is_verilog_benchmarks'],              # using verilog benchmarks?
                         connection_type=params['connection_type'],                        # connection type
-                        benchmark_top_name=params['top_module_names'].get(os.path.basename(params['verilog_files'][i])) or extract_file_name(params['verilog_files'][i]), # top module name
+                        benchmark_top_name=params['top_module_names'].get(os.path.basename(params['verilog_files'][i])) or infer_top_module(params['verilog_files'][i], extract_file_name(params['verilog_files'][i])), # top module name
                         output_folder_name=task_run_folder,                                # output folder
                         run_number=params['run_num'],                                     # run number
                         output_additional_info=output_identifier,             # additional info

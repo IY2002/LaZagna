@@ -1,37 +1,37 @@
 bram ram512x40
-  init 0
+  init 1
   abits 9
   dbits 40
   groups 2
   ports  1  1
   wrmode 1  0
-  enable 1  0
+  enable 1  1
   transp 0  0
   clocks 1  1
   clkpol 1  1
 endbram
 
 bram ram1024x20
-  init 0
+  init 1
   abits 10
   dbits 20
   groups 2
   ports  1  1
   wrmode 1  0
-  enable 1  0
+  enable 1  1
   transp 0  0
   clocks 1  1
   clkpol 1  1
 endbram
 
 bram ram2048x10
-  init 0
+  init 1
   abits 11
   dbits 10
   groups 2
   ports  1  1
   wrmode 1  0
-  enable 1  0
+  enable 1  1
   transp 0  0
   clocks 1  1
   clkpol 1  1

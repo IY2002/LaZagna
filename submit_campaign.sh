@@ -75,17 +75,28 @@ if [ -n "${CHARACTERIZE:-}" ]; then
     echo "  build job: $BID"
     DEP="--dependency=afterok:$BID"
   fi
-  CHID="$(sbatch --parsable -A "$ACCT" -q "$QUEUE" $DEP characterize.sbatch)"
-  echo "  characterization job: $CHID"
+  # One array task per design (count from characterize.py's default list unless CHAR_DESIGNS set).
+  if [ -n "${CHAR_DESIGNS:-}" ]; then
+    NDES="$(echo "$CHAR_DESIGNS" | tr ',' ' ' | wc -w)"
+  else
+    NDES="$(python3 -c "import re;s=open('campaign/characterize.py').read();b=s[s.index('DEFAULT_DESIGNS'):s.index(']',s.index('DEFAULT_DESIGNS'))];print(len(re.findall(r'\"(?:koios|vtr)/',b)))")"
+  fi
+  CHENV="ALL"
+  CHID="$(sbatch --parsable -A "$ACCT" -q "$QUEUE" $DEP --array=0-$((NDES-1)) \
+          --export="$CHENV" characterize.sbatch)"
+  SUMID="$(sbatch --parsable -A "$ACCT" -q "$QUEUE" --dependency=afterany:$CHID \
+          --array=0 --time=00:20:00 --mem=4G --export="$CHENV,SUMMARIZE=1" characterize.sbatch)"
+  echo "  characterization array: $CHID ($NDES designs)"
+  echo "  summary job:            $SUMID"
   echo
   echo "Submitted. Watch with:  squeue -u $USER"
-  echo "Results print to        characterize_${CHID}.out"
+  echo "Table prints to         characterize_${SUMID}_0.out"
   exit 0
 fi
 
 # --- 2. Sanity: required files ----------------------------------------------
 for f in lazagna.def build_lazagna.sbatch worker_array.sbatch extras.sbatch collect.sbatch \
-         campaign/worker.py campaign/phase_2dvs3d.py campaign/phase_hardblock.py \
+         campaign/worker.py campaign/phase_2dvs3d.py campaign/binds.sh \
          campaign/collect_results.py; do
   [ -e "$HERE/$f" ] || { echo "FATAL: missing $f in $HERE"; exit 1; }
 done
@@ -99,7 +110,8 @@ echo "Work dir: $WORK_ROOT"
 # would mangle values like STUDIES="columns,tpe"). Jobs source this if present.
 ENVF="$WORK_ROOT/campaign.env"
 : > "$ENVF"
-for v in SEEDS TRIALS_COLUMNS TRIALS_SAMPLER STUDIES KEEP_RRG CW HB_GRID HB_CW; do  # CW defaults to 300 in-code
+for v in SEEDS TRIALS_COLUMNS TRIALS_SAMPLER STUDIES KEEP_RRG CW HB_GRID HB_CW \
+         FIDELITY TARGET_UTIL TALL COLUMNS_DESIGN PROMOTE_TOP PROMOTE_RANDOM DESIGNS_2DVS3D; do  # CW defaults to 300 in-code
   if [ -n "${!v:-}" ]; then printf '%s=%q\n' "$v" "${!v}" >> "$ENVF"; fi
 done
 [ -s "$ENVF" ] && { echo "Tunables ($ENVF):"; cat "$ENVF"; }

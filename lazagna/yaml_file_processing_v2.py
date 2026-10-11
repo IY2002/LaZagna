@@ -20,7 +20,7 @@ New YAML schema
                       grid_csv_path, custom_patterns?
   interlayer_delay:   vertical_connectivity, delay_ratio, base_delay_switch,
                       update_arch_delay, switch_pairs
-  advanced:           additional_vpr_options
+  advanced:           additional_vpr_options, vpr_only
 
 Any parameter not provided in the user's YAML is filled from
 setup_files/defaults.yaml.
@@ -174,6 +174,7 @@ def load_param_ranges_v2(yaml_file: str) -> Dict:
     params["cur_loop_identifier"]    = config["experiment_name"]
     advanced = config.get("advanced", {})
     params["additional_vpr_options"] = advanced.get("additional_vpr_options", "")
+    params["vpr_only"]               = bool(advanced.get("vpr_only", False))
 
     # ==============================================================
     # Build linked_params (groups that sweep together)
@@ -200,6 +201,13 @@ def load_param_ranges_v2(yaml_file: str) -> Dict:
         params["linked_params"]["seed_mapping"] = generate_seed_mapping(
             int(seed_value)
         )
+    elif seed_mode == "list":
+        # Explicit seeds, identical across runs, so different architectures are compared
+        # on the same placements (paired comparison) instead of fresh random seeds each time.
+        params["linked_params"]["seed_mapping"] = [
+            {"seed": int(s), "run_num": i}
+            for i, s in enumerate(seed_value, 1)
+        ]
     else:  # fixed
         params["linked_params"]["seed_mapping"] = [
             {"seed": int(seed_value), "run_num": 1}

@@ -103,7 +103,7 @@ def run_flow(original_dir, width, height, channel_width, benchmark_name="", temp
         run_time = (end_time - start_time) * 1000
         print_verbose(f"Generating Empty Results file and writing to {original_dir + results_path + result_file_name} took {run_time:0.2f} ms")
 
-def setup_flow(original_dir, width, height, channel_width, type_sb="full", percent_connectivity=0.5, place_algorithm="cube_bb", is_verilog_benchmarks=False, connection_type="subset", arch_file="", random_seed=1, run_num=1, extra_vpr_options="", output_additional_info="", temp_dir="", vertical_connectivity=1, sb_switch_name="", sb_segment_name="", sb_input_pattern=[], sb_output_pattern=[], sb_location_pattern="repeated_interval", sb_grid_csv_path="", vertical_delay_ratio=1, sb_3d_switch_name="3D_SB_switch", base_delay_switch="", switch_interlayer_pairs={}, update_arch_delay=False):
+def setup_flow(original_dir, width, height, channel_width, type_sb="full", percent_connectivity=0.5, place_algorithm="cube_bb", is_verilog_benchmarks=False, connection_type="subset", arch_file="", random_seed=1, run_num=1, extra_vpr_options="", output_additional_info="", temp_dir="", vertical_connectivity=1, sb_switch_name="", sb_segment_name="", sb_input_pattern=[], sb_output_pattern=[], sb_location_pattern="repeated_interval", sb_grid_csv_path="", vertical_delay_ratio=1, sb_3d_switch_name="3D_SB_switch", base_delay_switch="", switch_interlayer_pairs={}, update_arch_delay=False, vpr_only=False):
     
 
     # Copy the task directory to the temp directory and work on it from there
@@ -111,7 +111,8 @@ def setup_flow(original_dir, width, height, channel_width, type_sb="full", perce
 
     # copy template script to designs
     # TODO: This is a bit sketchy, should make it more robust in the future to allow for multiple arch runs at the same time, no hard coding values
-    command = ["cp", temp_dir + "/task/config_templates/bitstream_script_template.openfpga", temp_dir + "/task/designs/bitstream_script.openfpga"]
+    script_template = "vpr_only_script_template.openfpga" if vpr_only else "bitstream_script_template.openfpga"
+    command = ["cp", temp_dir + "/task/config_templates/" + script_template, temp_dir + "/task/designs/bitstream_script.openfpga"]
     run_command_in_temp_dir(command, original_dir)
 
     script_path ="/designs/bitstream_script.openfpga"

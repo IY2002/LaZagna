@@ -51,3 +51,36 @@ def extract_file_name(file_path):
 
 def output_file_name(channel_width, width, height, percent_connectivity, place_algorithm,  connection_type, run_num=1, additional_info=""):
     return str(channel_width) + "_" + str(width) + "x" + str(height) + "_" + str(int(percent_connectivity * 100)) + "percent_" + place_algorithm + "_" + connection_type + "_" + additional_info.replace(" ", "_") + "_run" + str(run_num)
+
+# Simulation models of VTR hard primitives that VTR's benchmark files carry (often pasted at
+# the end of the file, marked keep_hierarchy). They are never the design's top module.
+VTR_PRIMITIVE_MODULES = {"single_port_ram", "dual_port_ram", "mult", "adder", "multiply"}
+
+def infer_top_module(verilog_path, fallback=None):
+    """Top module of a Verilog file: the module no other module instantiates.
+
+    Ignores comments and VTR primitive models. If several candidates remain, prefers the
+    one matching the file name, then the largest. Returns `fallback` if nothing is found."""
+    import re
+    try:
+        text = open(verilog_path, errors="ignore").read()
+    except OSError:
+        return fallback
+    text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
+    text = re.sub(r"//[^\n]*", "", text)
+    bodies = {}
+    for m in re.finditer(r"\bmodule\s+(\w+)(.*?)\bendmodule\b", text, re.S):
+        bodies.setdefault(m.group(1), m.group(2))
+    names = set(bodies) - VTR_PRIMITIVE_MODULES
+    used = set()
+    for body in bodies.values():
+        for n in names:
+            if n not in used and re.search(r"(^|[;\s])" + re.escape(n) + r"(?!\w)\s*(#|\w)", body):
+                used.add(n)
+    tops = [n for n in names if n not in used]
+    if not tops:
+        return fallback
+    stem = os.path.splitext(os.path.basename(verilog_path))[0]
+    if stem in tops:
+        return stem
+    return max(tops, key=lambda n: len(bodies[n]))

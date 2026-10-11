@@ -1,24 +1,23 @@
 #!/bin/bash
 # ============================================================================
-# One-off benchmark characterization: synthesis + pack only, no place or route.
-# Reports how much of a FIXED 12.5 / 12.5 / 75 architecture each Koios design
-# actually uses, so the placement study can be pointed at designs where hard-block
-# placement is contended rather than at ones with 4% DSP utilization.
+# Benchmark characterization: synthesis + pack only, one design per array task.
+# Each task fills the shared synthesis/pack cache (campaign_work/prep_cache), so the
+# studies that follow never re-synthesize. Then a summary job prints the table:
+# measured block demand, the 2D device sized to it, the matching 3D device, utilization.
 #
-#   sbatch -A gts-<PI> characterize.sbatch
+#   CHARACTERIZE=1 bash submit_campaign.sh          (submits the array + summary)
 #
-# Yosys is the memory driver, hence 64G. Much cheaper than a full campaign since
-# nothing is placed or routed.
+# Yosys is the memory driver for the large Koios designs, hence 64G per task.
 # ============================================================================
 #SBATCH --job-name=lazagna_char
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=8
+#SBATCH --cpus-per-task=2
 #SBATCH --mem=64G
 #SBATCH -q inferno
 #SBATCH --time=08:00:00
-#SBATCH --output=characterize_%j.out
-#SBATCH --error=characterize_%j.err
+#SBATCH --output=characterize_%A_%a.out
+#SBATCH --error=characterize_%A_%a.err
 set -u
 
 module load apptainer 2>/dev/null || true
@@ -27,27 +26,22 @@ command -v apptainer >/dev/null || { echo "FATAL: apptainer not found"; exit 1; 
 CAMPAIGN="${CAMPAIGN:-$SLURM_SUBMIT_DIR}"
 SIF="${SIF:-$CAMPAIGN/lazagna.sif}"
 WORK_ROOT="${WORK_ROOT:-$CAMPAIGN/campaign_work/characterize}"
-W="$WORK_ROOT/char"
+W="$WORK_ROOT/char_${SLURM_ARRAY_TASK_ID:-0}"
 
 [ -f "$SIF" ] || { echo "FATAL: missing SIF $SIF"; exit 1; }
 
-mkdir -p "$W"/{arch_files,base_rrg,rrg_3d,tasks_run,results} "$WORK_ROOT"/bench
-if [ ! -e "$W/arch_files/.seeded" ]; then
-  apptainer exec --no-home --cleanenv "$SIF" cp -a /opt/LaZagna/arch_files/. "$W/arch_files/"
-  touch "$W/arch_files/.seeded"
-fi
+. "$CAMPAIGN/campaign/binds.sh"
+lazagna_binds "$W"
 
-export APPTAINERENV_WORK="/work"
-for v in CHAR_GRID CHAR_CW CHAR_DESIGNS; do
+for v in CHAR_DESIGNS TARGET_UTIL TALL; do
   if [ -n "${!v:-}" ]; then export "APPTAINERENV_$v=${!v}"; fi
 done
+ARGS=()
+if [ -n "${SUMMARIZE:-}" ]; then
+  ARGS=(--summarize)
+else
+  export APPTAINERENV_CHAR_INDEX="${SLURM_ARRAY_TASK_ID:-0}"
+fi
 
-apptainer exec --no-home --cleanenv \
-  -B "$W/arch_files:/opt/LaZagna/arch_files" \
-  -B "$W/base_rrg:/opt/LaZagna/base_rrg" \
-  -B "$W/rrg_3d:/opt/LaZagna/rrg_3d" \
-  -B "$W/tasks_run:/opt/LaZagna/tasks_run" \
-  -B "$W/results:/opt/LaZagna/results" \
-  -B "$WORK_ROOT:/work" -B "$CAMPAIGN/campaign:/campaign" \
-  "$SIF" python3 /campaign/characterize.py
+apptainer exec --no-home --cleanenv "${BINDS[@]}" "$SIF" python3 /campaign/characterize.py "${ARGS[@]}"
 echo "CHARACTERIZE DONE $(date -Is)"

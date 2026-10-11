@@ -1,0 +1,780 @@
+<?xml version="1.0"?>
+<!-- Generated from arch_files/templates/dsp_bram/vtr_2d_arch_dsp_bram.xml: complex_dsp height 4, spram height 6, pins spread over the tile (custom single-row pin lists do not
+     carry over to tall tiles). Block definitions are unchanged, so packing is identical. -->
+<!-- 
+  Architecture with no fracturable LUTs
+
+  - 40 nm technology
+  - General purpose logic block: 
+    K = 6, N = 10
+  - Routing architecture: L = 4, fc_in = 0.15, Fc_out = 0.1
+
+  Details on Modelling:
+
+  Based on flagship k6_frac_N10_mem32K_40nm.xml architecture.  This architecture has no fracturable LUTs nor any heterogeneous blocks.
+
+
+  Authors: Jason Luu, Jeff Goeders, Vaughn Betz
+-->
+
+<!-- 
+    Modifications made for new complex_dsp and spram modules. 
+    They are based on the VTR multi_dio koios_3d architecture.
+
+    The delay values are calculated by comparing the delay ratio of each component to the delay of the LUT6. And the delay of each connections (switch, dsp, bram) is calculated based on this ratio.
+
+    For example:
+      LUT6 delay in this architecture is 296e-12 (Input to output delay 261e-12 + 35e-12 (Output to output average delay))
+      LUT6 delay in koios_3d is 157.73295e-12 (LUT crossbar + LUT delay + output delay (28.42e-12 + 91.1995e-12 + 37.71e-12))
+
+      This way the DSP and BRAM values are relatively similar to that of the architecture used in the paper "Into the Third Dimension: 3D FPGA Architecture with 3D Routing and 3D Logic Blocks" by Ian Kuon, Jason Luu, and Vaughn Betz. While not having a Fracturable LUT.
+
+      Architecture in koios_3d can be used with 3DFADE however, the RTL models for the complex LUT, DSP, and BRAM need to be written explicitly by the user.
+
+      Modification Added by: Ismael Youssef (Georgia Tech)
+ -->
+<architecture>
+  <!-- 
+       ODIN II specific config begins 
+       Describes the types of user-specified netlist blocks (in blif, this corresponds to 
+       ".model [type_of_block]") that this architecture supports.
+
+       Note: Basic LUTs, I/Os, and flip-flops are not included here as there are 
+       already special structures in blif (.names, .input, .output, and .latch) 
+       that describe them.
+  -->
+  <models>
+    <!-- A virtual model for I/O to be used in the physical mode of io block -->
+    <model name="io">
+      <input_ports>
+        <port name="outpad"/>
+      </input_ports>
+      <output_ports>
+        <port name="inpad"/>
+      </output_ports>
+    </model>
+
+    <model name="spram512x40">
+      <input_ports>
+        <port name="we" clock="clk" combinational_sink_ports="dataout"/>
+        <!-- control -->
+        <port name="addr" clock="clk" combinational_sink_ports="dataout"/>
+        <!-- address lines -->
+        <port name="datain" clock="clk" combinational_sink_ports="dataout"/>
+        <!-- data lines can be broken down into smaller bit widths minimum size 1 -->
+        <port name="clk" is_clock="1"/>
+        <!-- memories are often clocked -->
+      </input_ports>
+      <output_ports>
+        <port name="dataout" clock="clk"/>
+        <!-- output can be broken down into smaller bit widths minimum size 1 -->
+      </output_ports>
+    </model>
+
+    <model name="spram1024x20">
+      <input_ports>
+        <port name="we" clock="clk" combinational_sink_ports="dataout"/>
+        <!-- control -->
+        <port name="addr" clock="clk" combinational_sink_ports="dataout"/>
+        <!-- address lines -->
+        <port name="datain" clock="clk" combinational_sink_ports="dataout"/>
+        <!-- data lines can be broken down into smaller bit widths minimum size 1 -->
+        <port name="clk" is_clock="1"/>
+        <!-- memories are often clocked -->
+      </input_ports>
+      <output_ports>
+        <port name="dataout" clock="clk"/>
+        <!-- output can be broken down into smaller bit widths minimum size 1 -->
+      </output_ports>
+    </model>
+
+    <model name="spram2048x10">
+      <input_ports>
+        <port name="we" clock="clk" combinational_sink_ports="dataout"/>
+        <!-- control -->
+        <port name="addr" clock="clk" combinational_sink_ports="dataout"/>
+        <!-- address lines -->
+        <port name="datain" clock="clk" combinational_sink_ports="dataout"/>
+        <!-- data lines can be broken down into smaller bit widths minimum size 1 -->
+        <port name="clk" is_clock="1"/>
+        <!-- memories are often clocked -->
+      </input_ports>
+      <output_ports>
+        <port name="dataout" clock="clk"/>
+        <!-- output can be broken down into smaller bit widths minimum size 1 -->
+      </output_ports>
+    </model>
+
+    <model name="spram">
+      <input_ports>
+        <port name="we" clock="clk" combinational_sink_ports="dataout"/>
+        <!-- control -->
+        <port name="addr" clock="clk" combinational_sink_ports="dataout"/>
+        <!-- address lines -->
+        <port name="datain" clock="clk" combinational_sink_ports="dataout"/>
+        <!-- data lines can be broken down into smaller bit widths minimum size 1 -->
+        <port name="clk" is_clock="1"/>
+        <!-- memories are often clocked -->
+      </input_ports>
+      <output_ports>
+        <port name="dataout" clock="clk"/>
+        <!-- output can be broken down into smaller bit widths minimum size 1 -->
+      </output_ports>
+    </model>
+
+    <model name="two_mult_18x19">
+      <input_ports>
+        <port name="A" combinational_sink_ports="Y"/>
+        <port name="B" combinational_sink_ports="Y"/>
+      </input_ports>
+      <output_ports>
+        <port name="Y"/>
+      </output_ports>
+    </model>
+
+    <model name="one_mult_27x27">
+      <input_ports>
+        <port name="A" combinational_sink_ports="Y"/>
+        <port name="B" combinational_sink_ports="Y"/>
+      </input_ports>
+      <output_ports>
+        <port name="Y"/>
+      </output_ports>
+    </model>
+
+    <model name="dsp">
+      <input_ports>
+        <port name="I"/>
+      </input_ports>
+      <output_ports>
+        <port name="result"/>
+      </output_ports>
+    </model>
+
+    
+  </models>
+
+  <tiles>
+    <tile name="io" area="0">
+      <sub_tile name="io" capacity="8">
+        <equivalent_sites>
+          <site pb_type="io"/>
+        </equivalent_sites>
+        <input name="outpad" num_pins="1"/>
+        <output name="inpad" num_pins="1"/>
+        <fc in_type="frac" in_val="0.15" out_type="frac" out_val="0.10"/>
+        <pinlocations pattern="custom">
+          <loc side="left">io.outpad io.inpad</loc>
+          <loc side="top">io.outpad io.inpad</loc>
+          <loc side="right">io.outpad io.inpad</loc>
+          <loc side="bottom">io.outpad io.inpad</loc>
+        </pinlocations>
+      </sub_tile>
+    </tile>
+
+    <tile name="clb" area="53894">
+      <sub_tile name="clb">
+        <equivalent_sites>
+          <site pb_type="clb"/>
+        </equivalent_sites>
+        <input name="I" num_pins="40" equivalent="full"/>
+        <output name="O" num_pins="10" equivalent="none"/>
+        <clock name="clk" num_pins="1"/>
+        <fc in_type="frac" in_val="0.15" out_type="frac" out_val="0.10"/>
+        <pinlocations pattern="custom">
+          <loc side="left">clb.clk clb.O[0:2] clb.I[0:9]</loc>
+          <loc side="top">clb.O[3:5] clb.I[10:19]</loc>
+          <loc side="right">clb.O[6:7] clb.I[20:29]</loc>
+          <loc side="bottom">clb.O[8:9] clb.I[30:39]</loc>
+        </pinlocations>
+      </sub_tile>
+    </tile>
+
+    <tile name="spram" height="6" width="1" area="137668">
+      <sub_tile name="spram">
+        <equivalent_sites>
+          <site pb_type="spram" pin_mapping="direct"/>
+        </equivalent_sites>
+      <input name="addr" num_pins="11"/>
+      <input name="din" num_pins="40"/>
+      <input name="we1" num_pins="1"/>
+      <output name="dout" num_pins="40"/>
+      <clock name="clk" num_pins="1"/>
+        <fc in_type="frac" in_val="0.15" out_type="frac" out_val="0.10">
+          <fc_override fc_type="frac" fc_val="0" port_name="clk"/>
+        </fc>  
+        <pinlocations pattern="spread"/>
+      </sub_tile>
+    </tile>
+
+    <tile name="complex_dsp" height="4" width="1" area="253779">
+      <sub_tile name="complex_dsp">
+        <equivalent_sites>
+          <site pb_type="complex_dsp" pin_mapping="direct"/>
+        </equivalent_sites>
+        <input name="I" num_pins="74" />
+        <output name="result" num_pins="74"/>
+        <fc in_type="frac" in_val="0.15" out_type="frac" out_val="0.10">
+
+        </fc>
+        <pinlocations pattern="spread"/>
+      </sub_tile>
+    </tile>
+
+  </tiles>
+  <!-- ODIN II specific config ends -->
+  <!-- Physical descriptions begin -->
+  <layout tileable="false">
+    <fixed_layout name="12x12" width="14" height="14">
+        <!--Perimeter of 'io' blocks with 'EMPTY' blocks at corners-->
+        <perimeter type="io" priority="100"/>
+        <corners type="EMPTY" priority="101"/>
+
+        <!--Fill with 'clb'-->
+        <fill type="clb" priority="10"/>
+
+        <col type="complex_dsp" startx="2" starty="1" repeatx="4" priority="20"/>
+        <col type="spram" startx="4" starty="1" repeatx="4" priority="20"/>
+        <!-- <col type="EMPTY" startx="2" repeatx="8" starty="1" priority="19"/>
+        <col type="EMPTY" startx="4" repeatx="8" starty="1" priority="19"/> -->
+
+    </fixed_layout>
+  </layout>
+  <device>
+    <!-- VB & JL: Using Ian Kuon's transistor sizing and drive strength data for routing, at 40 nm. Ian used BPTM 
+			     models. We are modifying the delay values however, to include metal C and R, which allows more architecture
+			     experimentation. We are also modifying the relative resistance of PMOS to be 1.8x that of NMOS
+			     (vs. Ian's 3x) as 1.8x lines up with Jeff G's data from a 45 nm process (and is more typical of 
+			     45 nm in general). I'm upping the Rmin_nmos from Ian's just over 6k to nearly 9k, and dropping 
+			     RminW_pmos from 18k to 16k to hit this 1.8x ratio, while keeping the delays of buffers approximately
+			     lined up with Stratix IV. 
+			     We are using Jeff G.'s capacitance data for 45 nm (in tech/ptm_45nm).
+			     Jeff's tables list C in for transistors with widths in multiples of the minimum feature size (45 nm).
+			     The minimum contactable transistor is 2.5 * 45 nm, so I need to multiply drive strength sizes in this file
+	                     by 2.5x when looking up in Jeff's tables.
+			     The delay values are lined up with Stratix IV, which has an architecture similar to this
+			     proposed FPGA, and which is also 40 nm 
+			     C_ipin_cblock: input capacitance of a track buffer, which VPR assumes is a single-stage
+			     4x minimum drive strength buffer. -->
+    <sizing R_minW_nmos="8926" R_minW_pmos="16067"/>
+    <!-- The grid_logic_tile_area below will be used for all blocks that do not explicitly set their own (non-routing)
+     	  area; set to 0 since we explicitly set the area of all blocks currently in this architecture file.
+	  -->
+    <area grid_logic_tile_area="0"/>
+    <chan_width_distr>
+      <x distr="uniform" peak="1.000000"/>
+      <y distr="uniform" peak="1.000000"/>
+    </chan_width_distr>
+    <switch_block type="wilton" fs="3"/>
+    <connection_block input_switch_name="ipin_cblock" input_inter_die_switch_name="ipin_cblock"/>
+  </device>
+  <switchlist>
+    <switch type="mux" name="L4_driver" R="0.0" Cin="0.0" Cout="0.0" Tdel="185.8258e-12" mux_trans_size="2.6482996805637553" buf_size="18.744014602932605"/>
+    <switch type="mux" name="L4_inter_layer_driver" R="0.0" Cin="0.0" Cout="0.0" Tdel="323.1684e-12" mux_trans_size="2.6482996805637553" buf_size="18.744014602932605"/>
+    <!-- Delay of L16 driver is scaled from L4 by a factor of 1.5x (based on numbers from the Titan Stratix IV architecture file)
+   Area numbers will not be totally accurate because of the same buf_size -->
+    <switch type="mux" name="L16_driver" R="0.0" Cin="0.0" Cout="0.0" Tdel="379.2906e-12" mux_trans_size="3.1851297470059468" buf_size="39.327334265524485"/>
+    <switch type="mux" name="L16_inter_layer_driver" R="0.0" Cin="0.0" Cout="0.0" Tdel="516.6325e-12" mux_trans_size="3.1851297470059468" buf_size="39.327334265524485"/>
+    <switch type="mux" name="ipin_cblock" R="0.0" Cout="0.0" Cin="0.0" Tdel="106.0361e-12" mux_trans_size="2.008" buf_size="9.624436045683868"/>
+    <switch type="mux" name="ipin_inter_layer_cblock" R="0.0" Cout="0.0" Cin="0.0" Tdel="244.5818e-12" mux_trans_size="1.508" buf_size="11.71"/>
+
+    <!-- Special Switch only used by 3D SBs, it's delay is generated as a ratio from that of the 2D mux, by default if not specifed the first mux is used as the basis for the delay calculation.
+          The delay of this switch is actually 1/2 of the desired delay since there are 2 switches in series to drive interlayer connections. Since interlayer SB connections are like the following:
+          Horziontal Routing Channel on layer X -> None node at layer X (1st interlayer switch) -> None node at layer X+1 (second interlayer switch) -> Vertical Routing Channel on layer X+1
+
+          Notice the 2 switches in series, the first one is the None node at layer X, the second one is the None node at layer X+1.
+     -->
+    <switch type="mux" name="3D_SB_switch" R="0.0" Cout="0.0" Cin="0.0" Tdel="323.1684e-12" mux_trans_size="0.0" buf_size="0.0"/>
+  </switchlist>
+  <segmentlist>
+    <!--- VB & JL: using ITRS metal stack data, 96 nm half pitch wires, which are intermediate metal width/space.  
+			     With the 96 nm half pitch, such wires would take 60 um of height, vs. a 90 nm high (approximated as square) Stratix IV tile so this seems
+			     reasonable. Using a tile length of 90 nm, corresponding to the length of a Stratix IV tile if it were square. -->
+    <segment name="L4" freq="280" length="4" type="unidir" Rmetal="0.0" Cmetal="0.0">
+      <mux name="L4_driver"/>
+      <mux_inter_die name="L4_inter_layer_driver"/>
+      <sb type="pattern">1 1 1 1 1</sb>
+      <cb type="pattern">1 1 1 1</cb>
+    </segment>
+    <segment name="L16" freq="40" length="16" type="unidir" Rmetal="0.0" Cmetal="0.0">
+      <mux name="L16_driver"/>
+      <mux_inter_die name="L16_inter_layer_driver"/>
+      <!-- Vias from the top of the metal stack (global layers, where the long wires are 
+           implemented) down to the middle/bottom of the metal stack (semi-global layers, 
+           where the short wires are implemented) are expensive and restrictive.
+           As a result Startix IV only places long wire switch blocks every 4 LABs -->
+      <sb type="pattern">1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1</sb>
+      <!-- For the same reasons, long wires do not connect to block pins in Stratix IV -->
+      <cb type="pattern">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</cb>
+    </segment>
+
+    <!-- Segment that is used to drive 3D SB connections only by default if no other segment name is specified. -->
+    <segment name="3D_SB_connection" freq="0" length="1" type="unidir" Rmetal="0.0" Cmetal="0.0">
+      <mux name="3D_SB_switch"/>
+      <mux_inter_die name="3D_SB_switch"/>
+      <sb type="pattern">1 1</sb>
+      <cb type="pattern">1</cb>
+    </segment>
+  </segmentlist>
+  <complexblocklist>
+    <!-- Define I/O pads begin -->
+    <!-- Capacity is a unique property of I/Os, it is the maximum number of I/Os that can be placed at the same (X,Y) location on the FPGA -->
+    <!-- Not sure of the area of an I/O (varies widely), and it's not relevant to the design of the FPGA core, so we're setting it to 0. -->
+    <pb_type name="io">
+      <input name="outpad" num_pins="1"/>
+      <output name="inpad" num_pins="1"/>
+      <!-- A mode denotes the physical implementation of an I/O 
+           This mode will be not packable but is mainly used for fabric verilog generation   
+        -->
+      <mode name="physical" disable_packing="true">
+        <pb_type name="iopad" blif_model=".subckt io" num_pb="1">
+          <input name="outpad" num_pins="1"/>
+          <output name="inpad" num_pins="1"/>
+        </pb_type>
+        <interconnect>
+          <direct name="outpad" input="io.outpad" output="iopad.outpad">
+            <delay_constant max="26.2256e-12" in_port="io.outpad" out_port="iopad.outpad"/>
+          </direct>
+          <direct name="inpad" input="iopad.inpad" output="io.inpad">
+            <delay_constant max="79.8279e-12" in_port="iopad.inpad" out_port="io.inpad"/>
+          </direct>
+        </interconnect>
+      </mode>
+      <!-- IOs can operate as either inputs or outputs.
+	     Delays below come from Ian Kuon. They are small, so they should be interpreted as
+	     the delays to and from registers in the I/O (and generally I/Os are registered 
+	     today and that is when you timing analyze them.
+	     -->
+      <mode name="inpad">
+        <pb_type name="inpad" blif_model=".input" num_pb="1">
+          <output name="inpad" num_pins="1"/>
+        </pb_type>
+        <interconnect>
+          <direct name="inpad" input="inpad.inpad" output="io.inpad">
+            <delay_constant max="79.8279e-12" in_port="inpad.inpad" out_port="io.inpad"/>
+          </direct>
+        </interconnect>
+      </mode>
+      <mode name="outpad">
+        <pb_type name="outpad" blif_model=".output" num_pb="1">
+          <input name="outpad" num_pins="1"/>
+        </pb_type>
+        <interconnect>
+          <direct name="outpad" input="io.outpad" output="outpad.outpad">
+            <delay_constant max="26.2256e-12" in_port="io.outpad" out_port="outpad.outpad"/>
+          </direct>
+        </interconnect>
+      </mode>
+      <!-- Every input pin is driven by 15% of the tracks in a channel, every output pin is driven by 10% of the tracks in a channel -->
+      <!-- IOs go on the periphery of the FPGA, for consistency, 
+          make it physically equivalent on all sides so that only one definition of I/Os is needed.
+          If I do not make a physically equivalent definition, then I need to define 4 different I/Os, one for each side of the FPGA
+        -->
+      <!-- Place I/Os on the sides of the FPGA -->
+      <power method="ignore"/>
+    </pb_type>
+    <!-- Define I/O pads ends -->
+    <!-- Define general purpose logic block (CLB) begin -->
+    <!--- Area calculation: Total Stratix IV tile area is about 8100 um^2, and a minimum width transistor 
+	   area is 60 L^2 yields a tile area of 84375 MWTAs.
+	   Routing at W=300 is 30481 MWTAs, leaving us with a total of 53000 MWTAs for logic block area 
+	   This means that only 37% of our area is in the general routing, and 63% is inside the logic
+	   block. Note that the crossbar / local interconnect is considered part of the logic block
+	   area in this analysis. That is a lower proportion of of routing area than most academics
+	   assume, but note that the total routing area really includes the crossbar, which would push
+	   routing area up significantly, we estimate into the ~70% range. 
+	   -->
+    <pb_type name="clb">
+      <input name="I" num_pins="40" equivalent="full"/>
+      <output name="O" num_pins="10" equivalent="none"/>
+      <clock name="clk" num_pins="1"/>
+      <!-- Describe basic logic element.  
+             Each basic logic element has a 6-LUT that can be optionally registered
+        -->
+      <pb_type name="fle" num_pb="10">
+        <input name="in" num_pins="6"/>
+        <output name="out" num_pins="1"/>
+        <clock name="clk" num_pins="1"/>
+        <!-- 6-LUT mode definition begin -->
+        <mode name="n1_lut6">
+          <!-- Define 6-LUT mode -->
+          <pb_type name="ble6" num_pb="1">
+            <input name="in" num_pins="6"/>
+            <output name="out" num_pins="1"/>
+            <clock name="clk" num_pins="1"/>
+            <!-- Define LUT -->
+            <pb_type name="lut6" blif_model=".names" num_pb="1" class="lut">
+              <input name="in" num_pins="6" port_class="lut_in"/>
+              <output name="out" num_pins="1" port_class="lut_out"/>
+              <!-- LUT timing using delay matrix -->
+              <!-- These are the physical delay inputs on a Stratix IV LUT but because VPR cannot do LUT rebalancing,
+                       we instead take the average of these numbers to get more stable results
+                  82e-12
+                  173e-12
+                  261e-12
+                  263e-12
+                  398e-12
+                  397e-12
+                  -->
+              <delay_matrix type="max" in_port="lut6.in" out_port="lut6.out">
+                261e-12
+                261e-12
+                261e-12
+                261e-12
+                261e-12
+                261e-12
+              </delay_matrix>
+            </pb_type>
+            <!-- Define flip-flop -->
+            <pb_type name="ff" blif_model=".latch" num_pb="1" class="flipflop">
+              <input name="D" num_pins="1" port_class="D"/>
+              <output name="Q" num_pins="1" port_class="Q"/>
+              <clock name="clk" num_pins="1" port_class="clock"/>
+              <T_setup value="80.2421e-12" port="ff.D" clock="clk"/>
+              <T_clock_to_Q max="150.7579e-12" port="ff.Q" clock="clk"/>
+            </pb_type>
+            <interconnect>
+              <direct name="direct1" input="ble6.in" output="lut6[0:0].in"/>
+              <direct name="direct2" input="lut6.out" output="ff.D">
+                <!-- Advanced user option that tells CAD tool to find LUT+FF pairs in netlist -->
+                <pack_pattern name="ble6" in_port="lut6.out" out_port="ff.D"/>
+              </direct>
+              <direct name="direct3" input="ble6.clk" output="ff.clk"/>
+              <mux name="mux1" input="ff.Q lut6.out" output="ble6.out">
+                <!-- LUT to output is faster than FF to output on a Stratix IV -->
+                <delay_constant max="25e-12" in_port="lut6.out" out_port="ble6.out"/>
+                <delay_constant max="45e-12" in_port="ff.Q" out_port="ble6.out"/>
+              </mux>
+            </interconnect>
+          </pb_type>
+          <interconnect>
+            <direct name="direct1" input="fle.in" output="ble6.in"/>
+            <direct name="direct2" input="ble6.out" output="fle.out[0:0]"/>
+            <direct name="direct3" input="fle.clk" output="ble6.clk"/>
+          </interconnect>
+        </mode>
+        <!-- 6-LUT mode definition end -->
+      </pb_type>
+      <interconnect>
+        <!-- We use a full crossbar to get logical equivalence at inputs of CLB 
+		     The delays below come from Stratix IV. the delay through a connection block
+		     input mux + the crossbar in Stratix IV is 167 ps. We already have a 72 ps 
+		     delay on the connection block input mux (modeled by Ian Kuon), so the remaining
+		     delay within the crossbar is 95 ps. 
+		     The delays of cluster feedbacks in Stratix IV is 100 ps, when driven by a LUT.
+		     Since all our outputs LUT outputs go to a BLE output, and have a delay of 
+		     25 ps to do so, we subtract 25 ps from the 100 ps delay of a feedback
+		     to get the part that should be marked on the crossbar.	 -->
+        <complete name="crossbar" input="clb.I fle[9:0].out" output="fle[9:0].in">
+          <delay_constant max="95e-12" in_port="clb.I" out_port="fle[9:0].in"/>
+          <delay_constant max="75e-12" in_port="fle[9:0].out" out_port="fle[9:0].in"/>
+        </complete>
+        <complete name="clks" input="clb.clk" output="fle[9:0].clk">
+        </complete>
+        <!-- This way of specifying direct connection to clb outputs is important because this architecture uses automatic spreading of opins.  
+               By grouping to output pins in this fashion, if a logic block is completely filled by 6-LUTs, 
+               then the outputs those 6-LUTs take get evenly distributed across all four sides of the CLB instead of clumped on two sides (which is what happens with a more
+               naive specification).
+          -->
+        <direct name="clbouts1" input="fle[9:0].out" output="clb.O"/>
+      </interconnect>
+      <!-- Every input pin is driven by 15% of the tracks in a channel, every output pin is driven by 10% of the tracks in a channel -->
+      <!-- Place this general purpose logic block in any unspecified column -->
+    </pb_type>
+    <!-- Define general purpose logic block (CLB) ends -->
+
+    <!-- Define fracturable multiplier begin -->
+    <pb_type name="complex_dsp">
+      <input name="I" num_pins="74" />
+      <output name="result" num_pins="74"/>
+
+        <mode name="physical" disable_packing="true">
+          <pb_type name="dsp_physical" blif_model=".subckt dsp" num_pb="1">
+            <input name="I" num_pins="74"/>
+            <output name="result" num_pins="74"/>
+          </pb_type>
+          <interconnect>
+            <direct name="datain2dsp1" input="complex_dsp.I" output="dsp_physical.I">
+            </direct>
+            <direct name="out2result" input="dsp_physical.result" output="complex_dsp.result">
+            </direct>
+          </interconnect>
+        
+        </mode>
+
+        <!-- fixed-point multiplier mode (1 27x27 multiplier) result = ax*ay -->
+        <mode name="one_mult_27x27">
+            <pb_type name="mult_27x27_top" num_pb="1">
+              <input name="I" num_pins="74"/>
+              <output name="result" num_pins="74"/>
+              
+              <pb_type name="mult_27x27" blif_model=".subckt one_mult_27x27" num_pb="1">
+                <input name="A" num_pins="27"/>
+                <input name="B" num_pins="27"/>
+                <output name="Y" num_pins="54"/>
+                <delay_constant max="2.7654e-9" in_port="mult_27x27.A" out_port="mult_27x27.Y"/>
+                <delay_constant max="2.7654e-9" in_port="mult_27x27.B" out_port="mult_27x27.Y"/>
+              </pb_type>
+              <interconnect>
+                <direct name="a2a" input="mult_27x27_top.I[26:0]" output="mult_27x27.A">
+                </direct>
+                <direct name="b2b" input="mult_27x27_top.I[53:27]" output="mult_27x27.B">
+                </direct>
+                <direct name="out2out" input="mult_27x27.Y" output="mult_27x27_top.result[53:0]">
+                </direct>
+              </interconnect>
+            </pb_type>
+            <interconnect>
+              <direct name="I2A" input="complex_dsp.I" output="mult_27x27_top.I"/>
+              <direct name="out2result" input="mult_27x27_top.result" output="complex_dsp.result"/>
+            </interconnect>
+        </mode>
+
+        <!-- fixed-point multiplier mode (2 18x19 multipliers) result[some:bits] = ax*ay, result[other:bits] = bx*by -->
+        <mode name="two_mult_18x19">
+          <pb_type name="mult_18x19_top" num_pb="1">
+            <input name="I" num_pins="74"/>
+            <output name="result" num_pins="74"/>
+
+            <pb_type name="two_mult_18x19" num_pb="2">
+              <input name="A" num_pins="18"/>
+              <input name="B" num_pins="19"/>
+              <output name="Y" num_pins="37"/>
+              <pb_type name="mult_18x19" blif_model=".subckt two_mult_18x19" num_pb="1">
+                <input name="A" num_pins="18"/>
+                <input name="B" num_pins="19"/>
+                <output name="Y" num_pins="37"/>
+                <delay_constant max="2.7654e-9" in_port="mult_18x19.A" out_port="mult_18x19.Y"/>
+                <delay_constant max="2.7654e-9" in_port="mult_18x19.B" out_port="mult_18x19.Y"/>
+              </pb_type>
+              <interconnect>
+                <direct name="a2a" input="two_mult_18x19.A" output="mult_18x19.A">
+                  </direct>
+                <direct name="b2b" input="two_mult_18x19.B" output="mult_18x19.B">
+                  </direct>
+                <direct name="out2out" input="mult_18x19.Y" output="two_mult_18x19.Y">
+                  </direct>
+              </interconnect>
+            </pb_type>
+            <interconnect>
+              <direct name="datain2a1" input="mult_18x19_top.I[17:0]" output="two_mult_18x19[0].A">
+              </direct>
+              <direct name="I2b1" input="mult_18x19_top.I[36:18]" output="two_mult_18x19[0].B">
+              </direct>
+              <direct name="I2a2" input="mult_18x19_top.I[54:37]" output="two_mult_18x19[1].A">
+              </direct>
+              <direct name="I2b2" input="mult_18x19_top.I[73:55]" output="two_mult_18x19[1].B">
+              </direct>
+              <direct name="out2result1" input="two_mult_18x19[0].Y" output="mult_18x19_top.result[36:0]">
+              </direct>
+              <direct name="out2result2" input="two_mult_18x19[1].Y" output="mult_18x19_top.result[73:37]">
+              </direct>
+            </interconnect>
+          </pb_type>
+          <interconnect>
+            <direct name="I2A" input="complex_dsp.I" output="mult_18x19_top.I"/>
+            <direct name="out2result" input="mult_18x19_top.result" output="complex_dsp.result"/>
+          </interconnect>
+        </mode>
+  
+    </pb_type> 
+
+    <!-- <interconnect> -->
+      <!--50% sparse crossbar means 50% of the lines can reach an actual input of the dsp 
+      We do this by splitting inputs into two buckets and having two full crossbars-->
+      <!--
+     <complete name="first_half" input="dsp_top.dsp_I1" output="dsp.dsp_I1">
+          <delay_constant max="333e-12" in_port="dsp_top.dsp_I1" out_port="dsp.dsp_I1"/>
+     </complete>
+
+      <complete name="second_half" input="dsp_top.dsp_I2" output="dsp.dsp_I2">
+          <delay_constant max="333e-12" in_port="dsp_top.dsp_I2" out_port="dsp.dsp_I2"/>
+      </complete>
+      -->
+      <!-- <direct name="datain1" input="complex_dsp.I[0:36]" output ="dsp.dsp_I1"/>
+      <direct name="datain2" input="complex_dsp.I[37:73]" output ="dsp.dsp_I2"/>
+      <direct name="result" input="dsp.result" output="complex_dsp.result"></direct>
+    </interconnect>
+  </pb_type> -->
+    <!-- Define fracturable multiplier end -->
+
+    <!-- Define BRAM begin-->
+    <pb_type name="spram">
+      <input name="addr" num_pins="11"/>
+      <input name="din" num_pins="40"/>
+      <input name="we1" num_pins="1"/>
+      <output name="dout" num_pins="40"/>
+      <clock name="clk" num_pins="1"/>
+      <!-- Specify single port mode first -->
+      <mode name="physical" disable_packing="true">
+        <pb_type name="physical" blif_model=".subckt spram" num_pb="1">
+          <input name="addr" num_pins="11" port_class="address"/>
+          <input name="datain" num_pins="40" port_class="data_in"/>
+          <input name="we" num_pins="1" port_class="write_en"/>
+          <output name="dataout" num_pins="40" port_class="data_out"/>
+          <clock name="clk" num_pins="1" port_class="clock"/>
+
+          <T_setup value="-65.8482e-12" port="physical.addr" clock="clk"/>
+          <T_setup value="-65.8482e-12" port="physical.datain" clock="clk"/>
+          <T_setup value="-65.8482e-12" port="physical.we" clock="clk"/>
+          <T_setup value="-65.8482e-12" port="physical.dataout" clock="clk"/>
+
+          <T_hold value="139.2236e-12" port="physical.addr" clock="clk"/>
+          <T_hold value="139.2236e-12" port="physical.datain" clock="clk"/>
+          <T_hold value="139.2236e-12" port="physical.we" clock="clk"/>
+          <T_hold value="139.2236e-12" port="physical.dataout" clock="clk"/>
+
+          <T_clock_to_Q max="696.118e-12" port="physical.addr" clock="clk"/>
+          <T_clock_to_Q max="696.118e-12" port="physical.datain" clock="clk"/>
+          <T_clock_to_Q max="696.118e-12" port="physical.we" clock="clk"/>
+          <T_clock_to_Q max="696.118e-12" port="physical.dataout" clock="clk"/>
+
+          <delay_constant max="0" in_port="physical.addr" out_port="physical.dataout"/>
+          <delay_constant max="0" in_port="physical.datain" out_port="physical.dataout"/>
+          <delay_constant max="0" in_port="physical.we"   out_port="physical.dataout"/>
+
+        </pb_type>
+        <interconnect>
+          <direct name="address1" input="spram.addr" output="physical.addr">
+          </direct>
+          <direct name="data1" input="spram.din" output="physical.datain">
+          </direct>
+          <direct name="writeen1" input="spram.we1" output="physical.we">
+          </direct>
+          <direct name="dataout1" input="physical.dataout" output="spram.dout">
+          </direct>
+          <direct name="clk" input="spram.clk" output="physical.clk">
+          </direct>
+        </interconnect>
+      </mode>
+
+      <mode name="mem_512x40_sp">
+        <pb_type name="mem_512x40_sp" blif_model=".subckt spram512x40" num_pb="1">
+          <input name="addr" num_pins="9" port_class="address"/>
+          <input name="datain" num_pins="40" port_class="data_in"/>
+          <input name="we" num_pins="1" port_class="write_en"/>
+          <output name="dataout" num_pins="40" port_class="data_out"/>
+          <clock name="clk" num_pins="1" port_class="clock"/>
+
+          <T_setup value="-65.8482e-12" port="mem_512x40_sp.addr" clock="clk"/>
+          <T_setup value="-65.8482e-12" port="mem_512x40_sp.datain" clock="clk"/>
+          <T_setup value="-65.8482e-12" port="mem_512x40_sp.we" clock="clk"/>
+          <T_setup value="-65.8482e-12" port="mem_512x40_sp.dataout" clock="clk"/>
+
+          <T_hold value="139.2236e-12" port="mem_512x40_sp.addr" clock="clk"/>
+          <T_hold value="139.2236e-12" port="mem_512x40_sp.datain" clock="clk"/>
+          <T_hold value="139.2236e-12" port="mem_512x40_sp.we" clock="clk"/>
+          <T_hold value="139.2236e-12" port="mem_512x40_sp.dataout" clock="clk"/>
+
+          <T_clock_to_Q max="696.118e-12" port="mem_512x40_sp.addr" clock="clk"/>
+          <T_clock_to_Q max="696.118e-12" port="mem_512x40_sp.datain" clock="clk"/>
+          <T_clock_to_Q max="696.118e-12" port="mem_512x40_sp.we" clock="clk"/>
+          <T_clock_to_Q max="696.118e-12" port="mem_512x40_sp.dataout" clock="clk"/>
+
+          <delay_constant max="0" in_port="mem_512x40_sp.addr" out_port="mem_512x40_sp.dataout"/>
+          <delay_constant max="0" in_port="mem_512x40_sp.datain" out_port="mem_512x40_sp.dataout"/>
+          <delay_constant max="0" in_port="mem_512x40_sp.we"   out_port="mem_512x40_sp.dataout"/>
+
+        </pb_type>
+        <interconnect>
+          <direct name="address1" input="spram.addr[8:0]" output="mem_512x40_sp.addr">
+          </direct>
+          <direct name="data1" input="spram.din" output="mem_512x40_sp.datain">
+          </direct>
+          <direct name="writeen1" input="spram.we1" output="mem_512x40_sp.we">
+          </direct>
+          <direct name="dataout1" input="mem_512x40_sp.dataout" output="spram.dout">
+          </direct>
+          <direct name="clk" input="spram.clk" output="mem_512x40_sp.clk">
+          </direct>
+        </interconnect>
+      </mode>
+
+      <mode name="mem_1024x20_sp">
+        <pb_type name="mem_1024x20_sp" blif_model=".subckt spram1024x20" num_pb="1">
+          <input name="addr" num_pins="10" port_class="address"/>
+          <input name="datain" num_pins="20" port_class="data_in"/>
+          <input name="we" num_pins="1" port_class="write_en"/>
+          <output name="dataout" num_pins="20" port_class="data_out"/>
+          <clock name="clk" num_pins="1" port_class="clock"/>
+
+          <T_setup value="-65.8482e-12" port="mem_1024x20_sp.addr" clock="clk"/>
+          <T_setup value="-65.8482e-12" port="mem_1024x20_sp.datain" clock="clk"/>
+          <T_setup value="-65.8482e-12" port="mem_1024x20_sp.we" clock="clk"/>
+          <T_setup value="-65.8482e-12" port="mem_1024x20_sp.dataout" clock="clk"/>
+
+          <T_hold value="139.2236e-12" port="mem_1024x20_sp.addr" clock="clk"/>
+          <T_hold value="139.2236e-12" port="mem_1024x20_sp.datain" clock="clk"/>
+          <T_hold value="139.2236e-12" port="mem_1024x20_sp.we" clock="clk"/>
+          <T_hold value="139.2236e-12" port="mem_1024x20_sp.dataout" clock="clk"/>
+
+          <T_clock_to_Q max="696.118e-12" port="mem_1024x20_sp.addr" clock="clk"/>
+          <T_clock_to_Q max="696.118e-12" port="mem_1024x20_sp.datain" clock="clk"/>
+          <T_clock_to_Q max="696.118e-12" port="mem_1024x20_sp.we" clock="clk"/>
+          <T_clock_to_Q max="696.118e-12" port="mem_1024x20_sp.dataout" clock="clk"/>
+
+          <delay_constant max="0" in_port="mem_1024x20_sp.addr" out_port="mem_1024x20_sp.dataout"/>
+          <delay_constant max="0" in_port="mem_1024x20_sp.datain" out_port="mem_1024x20_sp.dataout"/>
+          <delay_constant max="0" in_port="mem_1024x20_sp.we"   out_port="mem_1024x20_sp.dataout"/>
+
+        </pb_type>
+        <interconnect>
+          <direct name="address1" input="spram.addr[9:0]" output="mem_1024x20_sp.addr[9:0]">
+          </direct>
+          <direct name="data1" input="spram.din[19:0]" output="mem_1024x20_sp.datain[19:0]">
+          </direct>
+          <direct name="writeen1" input="spram.we1" output="mem_1024x20_sp.we">
+          </direct>
+          <direct name="dataout1" input="mem_1024x20_sp.dataout[19:0]" output="spram.dout[19:0]">
+          </direct>
+          <direct name="clk" input="spram.clk" output="mem_1024x20_sp.clk">
+          </direct>
+        </interconnect>
+      </mode>
+
+      <mode name="mem_2048x10_sp">
+        <pb_type name="mem_2048x10_sp" blif_model=".subckt spram2048x10" num_pb="1">
+          <input name="addr" num_pins="11" port_class="address"/>
+          <input name="datain" num_pins="10" port_class="data_in"/>
+          <input name="we" num_pins="1" port_class="write_en"/>
+          <output name="dataout" num_pins="10" port_class="data_out"/>
+          <clock name="clk" num_pins="1" port_class="clock"/>
+
+          <T_setup value="-65.8482e-12" port="mem_2048x10_sp.addr" clock="clk"/>
+          <T_setup value="-65.8482e-12" port="mem_2048x10_sp.datain" clock="clk"/>
+          <T_setup value="-65.8482e-12" port="mem_2048x10_sp.we" clock="clk"/>
+          <T_setup value="-65.8482e-12" port="mem_2048x10_sp.dataout" clock="clk"/>
+
+          <T_hold value="139.2236e-12" port="mem_2048x10_sp.addr" clock="clk"/>
+          <T_hold value="139.2236e-12" port="mem_2048x10_sp.datain" clock="clk"/>
+          <T_hold value="139.2236e-12" port="mem_2048x10_sp.we" clock="clk"/>
+          <T_hold value="139.2236e-12" port="mem_2048x10_sp.dataout" clock="clk"/>
+
+          <T_clock_to_Q max="696.118e-12" port="mem_2048x10_sp.addr" clock="clk"/>
+          <T_clock_to_Q max="696.118e-12" port="mem_2048x10_sp.datain" clock="clk"/>
+          <T_clock_to_Q max="696.118e-12" port="mem_2048x10_sp.we" clock="clk"/>
+          <T_clock_to_Q max="696.118e-12" port="mem_2048x10_sp.dataout" clock="clk"/>
+
+          <delay_constant max="0" in_port="mem_2048x10_sp.addr" out_port="mem_2048x10_sp.dataout"/>
+          <delay_constant max="0" in_port="mem_2048x10_sp.datain" out_port="mem_2048x10_sp.dataout"/>
+          <delay_constant max="0" in_port="mem_2048x10_sp.we"   out_port="mem_2048x10_sp.dataout"/>
+
+        </pb_type>
+        <interconnect>
+          <direct name="address1" input="spram.addr[10:0]" output="mem_2048x10_sp.addr">
+          </direct>
+          <direct name="data1" input="spram.din[9:0]" output="mem_2048x10_sp.datain">
+          </direct>
+          <direct name="writeen1" input="spram.we1" output="mem_2048x10_sp.we">
+          </direct>
+          <direct name="dataout1" input="mem_2048x10_sp.dataout" output="spram.dout[9:0]">
+          </direct>
+          <direct name="clk" input="spram.clk" output="mem_2048x10_sp.clk">
+          </direct>
+        </interconnect>
+      </mode>
+
+    </pb_type>
+    <!-- Define BRAM end -->
+  </complexblocklist>
+</architecture>

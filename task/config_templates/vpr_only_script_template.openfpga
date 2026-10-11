@@ -1,0 +1,9 @@
+# VPR-only flow: pack, place and route, then stop.
+# Architecture studies only need VPR's timing and wirelength, so this skips fabric
+# building, fabric Verilog, repacking and bitstream generation, which took ~75% of
+# each run (eltwise: 426 s OpenFPGA total, 44 s of it VPR).
+# Selected with `advanced.vpr_only: true` in the setup YAML.
+
+vpr ${VPR_ARCH_FILE} ${VPR_TESTBENCH_BLIF}
+
+exit

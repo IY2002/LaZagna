@@ -1,11 +1,15 @@
 module ram512x40(
   input CLK1,
+  input B1EN,   // read enable: accepted, not implemented (spram has no read enable;
+                //   during a write the output shows old data instead of holding)
   input [0:8] A1ADDR,
   input [0:39] A1DATA,
   input A1EN,
   input [0:8] B1ADDR,
   output [0:39] B1DATA
 );
+  // Initial contents (ROMs). Accepted so initialized memories map; VPR ignores contents.
+  parameter [20479:0] INIT = 20480'bx;
 
 	wire [8:0] addr1_in = (A1EN == 1'b1) ? A1ADDR : B1ADDR;
 
@@ -23,12 +27,16 @@ endmodule
 
 module ram1024x20(
   input CLK1,
+  input B1EN,   // read enable: accepted, not implemented (spram has no read enable;
+                //   during a write the output shows old data instead of holding)
   input [0:9] A1ADDR,
   input [0:9] B1ADDR,
   input [0:19] A1DATA,
   input A1EN,
   output [0:19] B1DATA
 );
+  // Initial contents (ROMs). Accepted so initialized memories map; VPR ignores contents.
+  parameter [20479:0] INIT = 20480'bx;
 
 	wire [9:0] addr1_in = (A1EN == 1'b1) ? A1ADDR : B1ADDR;
 
@@ -47,12 +55,16 @@ endmodule
 
 module ram2048x10(
   input CLK1,
+  input B1EN,   // read enable: accepted, not implemented (spram has no read enable;
+                //   during a write the output shows old data instead of holding)
   input [0:10] A1ADDR,
   input [0:10] B1ADDR,
   input [0:9] A1DATA,
   input A1EN,
   output [0:9] B1DATA
 );
+  // Initial contents (ROMs). Accepted so initialized memories map; VPR ignores contents.
+  parameter [20479:0] INIT = 20480'bx;
 
 	wire [10:0] addr1_in = (A1EN == 1'b1) ?  A1ADDR : B1ADDR;
 

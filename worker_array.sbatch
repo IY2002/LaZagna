@@ -42,35 +42,25 @@ if ! apptainer exec --no-home --cleanenv "$SIF" test -d /opt/LaZagna/base_rrg; t
   exit 1
 fi
 
-# Per-worker writable dirs for everything the flow writes inside /opt/LaZagna.
-mkdir -p "$W"/{arch_files,base_rrg,rrg_3d,tasks_run,results} "$WORK_ROOT"/{journal,bench}
-
-# arch_files must start as a copy of the image's (templates live there); the bind shadows it.
-if [ ! -e "$W/arch_files/.seeded" ]; then
-  apptainer exec --no-home --cleanenv "$SIF" cp -a /opt/LaZagna/arch_files/. "$W/arch_files/"
-  touch "$W/arch_files/.seeded"
-fi
-
-BINDS=(-B "$W/arch_files:/opt/LaZagna/arch_files"
-       -B "$W/base_rrg:/opt/LaZagna/base_rrg"
-       -B "$W/rrg_3d:/opt/LaZagna/rrg_3d"
-       -B "$W/tasks_run:/opt/LaZagna/tasks_run"
-       -B "$W/results:/opt/LaZagna/results"
-       -B "$WORK_ROOT:/work"
-       -B "$CAMPAIGN/campaign:/campaign")
+# Per-worker writable dirs + host code binds (no image rebuild for code changes).
+. "$CAMPAIGN/campaign/binds.sh"
+lazagna_binds "$W"
 
 # APPTAINERENV_* survives --cleanenv and dodges --env's comma-list parsing (values with
 # spaces, e.g. STUDIES, would be mangled there).
 export APPTAINERENV_WORKER_ID="$ID"
-export APPTAINERENV_WORK="/work"
 export APPTAINERENV_SEEDS="${SEEDS:-3}"
 export APPTAINERENV_TRIALS_COLUMNS="${TRIALS_COLUMNS:-35}"
 export APPTAINERENV_TRIALS_SAMPLER="${TRIALS_SAMPLER:-15}"
-export APPTAINERENV_STUDIES="${STUDIES:-columns tpe nsga2 random}"
+export APPTAINERENV_STUDIES="${STUDIES:-columns promote tpe nsga2 random}"
 # Batch width for the RQ3 ablation. Empty means "not an ablation run" and study names
 # stay unsuffixed; a value gives each width its own study (see campaign/worker.py).
 export APPTAINERENV_BATCH="${BATCH:-}"
 export APPTAINERENV_CW="${CW:-300}"   # lab standard channel width
+# Fast-flow knobs (see campaign/worker.py): placement-only search fidelity, target utilization.
+for v in FIDELITY TARGET_UTIL TALL COLUMNS_DESIGN PROMOTE_TOP PROMOTE_RANDOM; do
+  if [ -n "${!v:-}" ]; then export "APPTAINERENV_$v=${!v}"; fi
+done
 [ -n "${KEEP_RRG:-}" ] && export APPTAINERENV_KEEP_RRG="$KEEP_RRG"
 
 echo "WORKER $ID START $(date -Is)  work=$W"
