@@ -74,6 +74,19 @@ From: ubuntu:24.04
     # --- Submodules (OpenFPGA + benchmarks), recursive (per makefile "init"). ---
     git submodule update --init --recursive
 
+    # --- Patch known upstream bug: TimingReporter.hpp (in the vtr-verilog-to-routing
+    #     submodule) hardcodes two #include paths to a developer's local home dir
+    #     (e.g. /home/OpenFPGA_LaZagna_merge/...), which doesn't exist in this image.
+    #     Rewrite to includes relative to the file itself so the build is
+    #     self-contained and doesn't depend on the upstream fork being fixed/pushed. ---
+    TR_HPP="/opt/LaZagna/OpenFPGA/vtr-verilog-to-routing/libs/EXTERNAL/libtatum/libtatum/tatum/TimingReporter.hpp"
+    if [ -f "$TR_HPP" ]; then
+        sed -i \
+            -e 's#include "/[^"]*/vpr/src/base/vpr_context.h"#include "../../../../../vpr/src/base/vpr_context.h"#' \
+            -e 's#include "/[^"]*/vpr/src/pack/prepack.h"#include "../../../../../vpr/src/pack/prepack.h"#' \
+            "$TR_HPP"
+    fi
+
     # --- Build OpenFPGA/VTR9 (per makefile "build": OpenFPGA make all). ---
     BUILD_JOBS=$(nproc)
     cd /opt/LaZagna/OpenFPGA && make all -j"${BUILD_JOBS}"
