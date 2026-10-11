@@ -81,3 +81,24 @@ everything else was decided during the autonomous run, with the reason given.
 Entries are added during the run (date, decision, reason).
 
 - 2026-10-11: branch `study-fastflow` created; work committed locally and not pushed **(user)**.
+- 2026-10-11: **Design selection, batch 1** (from characterization v2). RQ2 layout designs:
+  tpu_like.small.os, attention_layer, stereovision1, robot_rl, conv_layer, arm_core. These have
+  contended hard blocks (DSP and/or BRAM at ≥ ~20–80% use) and small devices (≤ ~7.3k tiles),
+  so many routed runs are affordable. RQ3 connectivity designs: the first four of those. RQ1:
+  16 small/medium designs plus 4 large ones (dla_like.small, LU32PEEng, spmv,
+  bwave_like.fixed.small). Excluded from RQ1: designs whose 3D device can't match the 2D tile
+  count (tiny or IO-bound: raygentop, diffeq1/2, sha, mkSMAdapter4B, mkPktMerge, or1200,
+  conv_layer_hls, which is 100% IO-bound) and designs whose synthesis is broken (see above).
+  dnnweaver (2×167×158 3D) is deferred for cost.
+- 2026-10-11: **Seeds:** 5 for every fixed-configuration experiment (RQ1–RQ3); 3 for Optuna search trials.
+- 2026-10-11: **RQ2 named layouts:** aligned (reference), staggered (layer 1 shifted half a pitch),
+  hb_one_layer (all hard blocks on layer 0), split_types (DSP on layer 0, BRAM on layer 1),
+  center, edges, center_edges (layer 0 center, layer 1 edges). All keep the reference's exact
+  block totals.
+- 2026-10-11: **RQ3 knobs:** percent_connectivity ∈ {0.1, 0.25, 0.5, 0.75, 1.0} (fraction of
+  switch blocks that are 3D, repeated_interval placement) at full per-switch-block vertical
+  connectivity, plus vertical_connectivity ∈ {0.25, 0.5} (fraction of channels crossing) at
+  connectivity 1.0. Delay ratio fixed at 0.739.
+- 2026-10-11: **Search fidelity for RQ2 Optuna studies: routed** (not placement estimates).
+  The chosen designs route in minutes, and on eltwise the placement-estimated CPD ranked
+  layouts poorly (Spearman 0.40 over 4 trials).

@@ -28,9 +28,18 @@ Read at every loop iteration. Update "State" and "Next" before ending each itera
   limitations; reproduce commands.
 
 ## State
-- Flow validated on eltwise (fast flow equivalent to the regular flow; 3D vs 2D +5.2% CPD,
-  +15.6% WL).
-- Synthesis fixes and write-port merging in place; characterization v2 running.
+- Characterization v2 (job 13965227/13965228): 36/40 done at 21:05; gemm, clstm.small, mcml,
+  lenet still synthesizing. Table in characterize_13965228_0.out when done.
+- Batch 1 (job 13965777, 86 tasks, %24): RQ2 layouts (6 designs × 7), RQ3 connectivity
+  (4 designs × 6), RQ1 (20 designs). Results go to campaign_work/study/results/*.json.
+- New runner: campaign/experiment.py + experiment.sbatch (task file, one JSON per line).
 
 ## Next
-- Wait for characterization v2 to finish, then do plan step A.
+- Check the first batch 1 results for errors (exp_13965777_*.out). Fix and resubmit failed tasks
+  (finished ones are skipped automatically).
+- Write campaign/analyze.py: RQ1 table (2D vs 3D per design, geomean, seed spread), RQ2
+  table (layout vs aligned), RQ3 curves. Figures to campaign_work/study/figs, copied
+  into docs/study_figs for the write-up.
+- Launch Optuna column studies (FIDELITY=route) for tpu_like.small.os and attention_layer
+  (4 workers each, ~40 trials) once batch 1 has freed slots.
+- Add gemm/clstm/mcml/lenet to RQ1 if they characterize cleanly.

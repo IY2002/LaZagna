@@ -125,3 +125,5 @@ characterize_*.out
 characterize_*.err
 fftest_*.out
 fftest_*.err
+exp_*.out
+exp_*.err

@@ -129,6 +129,9 @@ class SearchConfig:
     # autosize(): the 2D device is the smallest grid where every block type is at most this
     # utilized; the 3D device matches the 2D device's total tile count over two layers.
     target_util: float = 0.8
+    # Parallel VPR runs per evaluation (one per seed by default). Lower it for large
+    # devices, where each VPR holds a multi-GB routing graph.
+    vpr_jobs: Optional[int] = None
 
     hb_period_choices: tuple[int, ...] = (4, 6, 8, 12)
     edge_fraction_range: tuple[float, float] = (0.1, 0.35)
@@ -221,7 +224,8 @@ def sample_connectivity(trial: optuna.Trial, cfg: SearchConfig):
     return type_sb, connectivity, connection_type, delay_ratio
 
 def _experiment_options(cfg: SearchConfig, exp_name: str, arch_type: str, connectivity: float,
-                        delay_ratio: float, connection_type: str = "subset") -> ExperimentOptions:
+                        delay_ratio: float, connection_type: str = "subset",
+                        vertical_connectivity: float = 1) -> ExperimentOptions:
     opts = ExperimentOptions(
         experiment_name=exp_name,
         grid=GridOptions(width_3d=cfg.width, height_3d=cfg.height,
@@ -232,7 +236,8 @@ def _experiment_options(cfg: SearchConfig, exp_name: str, arch_type: str, connec
         seeds=SeedOptions.from_list(seed_values(cfg)),
         switch_block_3d=SwitchBlock3DOptions(connectivity=[connectivity],
                                              connection_type=[connection_type]),
-        interlayer_delay=InterlayerDelayOptions(delay_ratio=[delay_ratio]),
+        interlayer_delay=InterlayerDelayOptions(delay_ratio=[delay_ratio],
+                                                vertical_connectivity=vertical_connectivity),
         advanced=AdvancedOptions(vpr_only=True),
     )
     opts.architectures[0].type = arch_type
@@ -335,7 +340,8 @@ def autosize(cfg: SearchConfig) -> tuple[SearchConfig, dict]:
 
 def _run_one(cfg: SearchConfig, spec_or_none, exp_name: str, arch_type: str,
              connectivity: float, delay_ratio: float, connection_type: str = "subset",
-             info: Optional[dict] = None, fidelity: Optional[str] = None):
+             info: Optional[dict] = None, fidelity: Optional[str] = None,
+             vertical_connectivity: float = 1):
     """Run one architecture over all seeds. Returns ((cpd, wl), None) or (None, error).
     `info`, if given, is filled with per-seed details (placement estimates and routed values)."""
     is_2d = arch_type == "2d"
@@ -346,7 +352,8 @@ def _run_one(cfg: SearchConfig, spec_or_none, exp_name: str, arch_type: str,
     arch_w = cfg.width_2d if is_2d else cfg.width
     arch_h = cfg.height_2d if is_2d else cfg.height
     arch = build_architecture(spec, arch_w, arch_h, _template(cfg, is_2d), layers=1 if is_2d else 2)
-    opts = _experiment_options(cfg, exp_name, arch_type, connectivity, delay_ratio, connection_type)
+    opts = _experiment_options(cfg, exp_name, arch_type, connectivity, delay_ratio, connection_type,
+                               vertical_connectivity)
 
     if cfg.fast_flow:
         from lazagna_fastflow import evaluate
@@ -354,7 +361,8 @@ def _run_one(cfg: SearchConfig, spec_or_none, exp_name: str, arch_type: str,
             meta = prepare(cfg)
             res = evaluate(arch, opts, meta["blif"], meta["net"], seed_values(cfg),
                            stage=fidelity or cfg.fidelity,
-                           lazagna_root=cfg.lazagna_root, timeout_s=cfg.trial_timeout_s)
+                           lazagna_root=cfg.lazagna_root, timeout_s=cfg.trial_timeout_s,
+                           jobs=cfg.vpr_jobs)
         except Exception as e:   # setup/prepare failures become a pruned trial, not a dead worker
             return None, f"{type(e).__name__}: {e}"
         if info is not None:
