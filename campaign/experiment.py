@@ -20,6 +20,8 @@
 #   loc      (conn) 3D switch-block location pattern: repeated_interval (default), core,
 #            perimeter, rows, columns
 #   tag      optional label (e.g. "s10"): tagged runs are analyzed separately
+#   delay    inter-layer delay ratio (default 0.739); applies to every kind's 3D side
+#   (layout) conn / vconn / loc may also be given, to combine a layout with thinned links
 #   jobs     parallel VPR runs (default = seeds)
 # env: TASKS (path), TASK_INDEX (array index), WORK (/work), TALL (1), CW (300)
 import json
@@ -144,10 +146,12 @@ def run(task: dict) -> dict:
            "cols_per_layer": column_counts(cfg), "seeds": list(cfg.seed_list)}
     tag = task["id"].replace("/", "_").replace(".", "")
 
+    delay = float(task.get("delay", 0.739))
+
     def go(label, spec, arch_type, conn=1.0, vconn=1.0, loc="repeated_interval"):
         info = {}
         t0 = time.time()
-        m, err = _run_one(cfg, spec, f"{tag}{label}", arch_type, conn, 0.739, info=info,
+        m, err = _run_one(cfg, spec, f"{tag}{label}", arch_type, conn, delay, info=info,
                           fidelity="route", vertical_connectivity=vconn, sb_location=loc)
         out = {"cpd": m[0] if m else None, "wl": m[1] if m else None, "error": err,
                "per_seed": info.get("per_seed"), "t_s": round(time.time() - t0)}
@@ -160,7 +164,9 @@ def run(task: dict) -> dict:
         rec["2d"] = go("two", None, "2d")
         rec["3d"] = go("three", reference_columns(cfg), cfg.arch_type)
     elif kind == "layout":
-        rec["3d"] = go(task["layout"], named_layout(task["layout"], cfg), cfg.arch_type)
+        rec["3d"] = go(task["layout"], named_layout(task["layout"], cfg), cfg.arch_type,
+                       conn=float(task.get("conn", 1.0)), vconn=float(task.get("vconn", 1.0)),
+                       loc=task.get("loc", "repeated_interval"))
     elif kind == "custom":
         from lazagna_optuna import structured_columns
         if "structured" in task:
