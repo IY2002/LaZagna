@@ -291,36 +291,52 @@ def rq3(rows, lines, plt):
               "crossing. Change vs full connectivity (p = 1, v = 1); positive = better. The 2D "
               "device (no vertical links) is shown for scale.", "",
               "| design | config | relative links | CPD vs full % | WL vs full % |", "|---|---|---|---|---|"]
-    fig, axes = plt.subplots(1, 2, figsize=(9.5, 3.4))
+    agg = {"p": {}, "v": {}}   # strategy -> links -> [(cpd, wl) per design]
     for i, d in enumerate(designs):
         full = by[d][(1.0, 1.0)]["3d"]
-        psweep, vsweep = [(1.0, 0.0, 0.0)], [(1.0, 0.0, 0.0)]
         for (p, v), r in sorted(by[d].items()):
             if (p, v) == (1.0, 1.0):
                 continue
             (c, cci, _), (w, wci, _) = paired(full, r["3d"])
             lines.append(f"| {d} | p={p:g}, v={v:g} | {p*v:.2f} | {fmt(c, cci)} | {fmt(w, wci)} |")
             if v == 1.0:
-                psweep.append((p, c, w))
+                agg["p"].setdefault(p, []).append((c, w))
             elif p == 1.0:
-                vsweep.append((v, c, w))
+                agg["v"].setdefault(v, []).append((c, w))
         two = paired(full, by[d][(1.0, 1.0)]["2d"])
         lines.append(f"| {d} | 2D device | 0 | {fmt(*two[0][:2])} | {fmt(*two[1][:2])} |")
-        col = CATEGORICAL[i % len(CATEGORICAL)]
-        for ax, k in ((axes[0], 1), (axes[1], 2)):
-            ps, vs = sorted(psweep), sorted(vsweep)
-            ax.plot([q[0] for q in ps], [q[k] for q in ps], color=col, lw=2, marker="o", ms=5,
-                    label=f"{d}: fewer 3D switch blocks (p)")
-            if len(vs) > 1:
-                ax.plot([q[0] for q in vs], [q[k] for q in vs], color=col, lw=2, ls="--", marker="s",
-                        ms=5, label=f"{d}: fewer crossing channels (v)")
+    lines += ["", "**Mean over designs, by strategy** (same link budget p·v):", "",
+              "| links | fewer 3D switch blocks: CPD / WL % | fewer crossing channels: CPD / WL % |", "|---|---|---|"]
+    levels = sorted(set(agg["p"]) | set(agg["v"]))
+    for x in levels:
+        cell = []
+        for k in ("p", "v"):
+            vals = agg[k].get(x)
+            if vals:
+                mc = sum(q[0] for q in vals) / len(vals); mw = sum(q[1] for q in vals) / len(vals)
+                cell.append(f"{mc:+.1f} / {mw:+.1f} (n={len(vals)})")
+            else:
+                cell.append("–")
+        lines.append(f"| {x:g} | {cell[0]} | {cell[1]} |")
+    fig, axes = plt.subplots(1, 2, figsize=(9.5, 3.4))
+    styles = {"p": (BLUE, "-", "o", "fewer 3D switch blocks (p, all channels cross)"),
+              "v": (ORANGE, "--", "s", "fewer crossing channels per switch block (v, every SB 3D)")}
+    for k, (col, ls, mk, lab) in styles.items():
+        xs = sorted(agg[k]) + [1.0]
+        for ax, j in ((axes[0], 0), (axes[1], 1)):
+            means = [sum(q[j] for q in agg[k][x]) / len(agg[k][x]) for x in xs[:-1]] + [0.0]
+            lo = [min(q[j] for q in agg[k][x]) for x in xs[:-1]] + [0.0]
+            hi = [max(q[j] for q in agg[k][x]) for x in xs[:-1]] + [0.0]
+            ax.fill_between(xs, lo, hi, color=col, alpha=0.12, lw=0)
+            ax.plot(xs, means, color=col, ls=ls, lw=2, marker=mk, ms=6, label=lab)
     for ax, t in ((axes[0], "CPD vs full connectivity (%)"), (axes[1], "WL vs full connectivity (%)")):
         ax.axhline(0, color=INK2, lw=0.8)
         ax.set_xscale("log")
-        ax.set_xlabel("relative number of vertical links (p·v)")
+        ax.set_xlabel("relative number of vertical links (p·v), log scale")
         ax.set_title(t, loc="left")
-    axes[1].legend(loc="lower right", fontsize=6.5)
-    fig.tight_layout()
+    axes[1].legend(loc="lower right", fontsize=7.5)
+    fig.text(0.01, 0.01, f"mean over {len(designs)} designs; band = min–max across designs", fontsize=7, color=INK2)
+    fig.tight_layout(rect=(0, 0.04, 1, 1))
     fig.savefig(os.path.join(FIGS, "rq3_connectivity.png"), dpi=200)
     plt.close(fig)
     lines += ["", "![RQ3](figs/rq3_connectivity.png)", ""]

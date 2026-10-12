@@ -110,6 +110,9 @@ opt -undriven -fine -nodffe -nosdff
 # Async-reset FFs become plain FFs + logic first (the CLB FF has no async reset), then legalize.
 # Order matters: dfflegalize aborts on any async-reset FF still present.
 techmap -map +/adff2dff.v
+# async2sync catches async set/reset FFs already in fine-grained form (mcml), which
+# adff2dff does not match.
+async2sync
 dfflegalize -cell $_DFF_P_ 0
 opt_expr -mux_undef
 simplemap

@@ -14,7 +14,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
-#SBATCH --mem=32G
+#SBATCH --mem=64G   # 3D RRG generation peaks ~19 GB plus multi-GB file cache (32G -> intermittent kills)
 #SBATCH -q inferno
 #SBATCH --time=16:00:00
 #SBATCH --output=worker_%A_%a.out

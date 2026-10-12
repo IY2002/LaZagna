@@ -27,22 +27,22 @@ Read at every loop iteration. Update "State" and "Next" before ending each itera
 - **E. Write-up:** STUDY_RESULTS.md with tables, figures (PNG), and insights for each RQ;
   limitations; reproduce commands.
 
-## State (2026-10-11 20:55)
-- Batch-1 rerun 13966093: 83/86 clean (0 errors). Remaining: the large RQ1 designs
-  (dla_like.small, LU32PEEng, bwave). Tables are in docs/study/tables.md. Findings are in
-  STUDY_RESULTS.md (v1).
-- Batch 2 = job 13966526 (51 tasks, %14): RQ2 generalization on 6 designs (hb_one_layer,
-  split_types, center, staggered); RQ3 v=0.05/0.1 and p=0.5,v=0.5 on 4 designs plus a full sweep
-  on conv/eltwise; RQ1 clstm_like.small, mcml, gemm_layer (jobs=2).
-- Structured Optuna studies (campaign_work/study_optuna, route fidelity, 3 seeds, 45 trials):
-  tpu_like.small.os = 13966528, attention_layer = 13966529, stereovision1 = 13966530 (3 workers each).
+## State (2026-10-11 21:50)
+- Batches 1 and 2: 134 results, 0 errors (gemm/clstm/large RQ1 may still be running). Findings
+  are in STUDY_RESULTS.md (RQ1 20 designs; RQ2 12 designs; RQ3 6 designs + strategy table).
+- Optuna structured studies restarted with 64 GB workers: tpu_like.small.os = 13967294,
+  attention_layer = 13967295, stereovision1 = 13967296 (journal in campaign_work/study_optuna,
+  target 45 COMPLETE trials).
+- mcml retry (async2sync) = 13967311.
 
 ## Next
-- Harvest batch 2; rerun analyze.py; update STUDY_RESULTS.md.
-- Optuna: when the studies finish, extract best structured params plus a parameter
-  importance/correlation analysis (cluster/stagger/splits vs CPD/WL). Write
-  campaign/analyze_optuna.py, which runs in the container (optuna is not on the host). Validate
-  the top 3 layouts per design with 5 seeds via a 'custom' experiment kind (explicit columns).
-- If the CPD claims need it: 10-seed reruns of key comparisons (RQ1 on the top designs; RQ2
-  hb_one_layer vs aligned).
-- Consider an RQ3 extra: SB location patterns (core/perimeter/rows/columns) at p = 0.25.
+- When the Optuna studies have ≥30 complete trials each, run analyze_optuna.py via
+  run_script.sbatch (WORK_ROOT=campaign_work/study_optuna). Then submit
+  tasks_validate.jsonl (copied into campaign_work/study) with experiment.sbatch to get the top
+  layouts at 5 seeds.
+- RQ2 follow-up (batch 3): split_types is the most interesting layout. Test it with clustering
+  per layer (DSP layer spread vs BRAM layer spread), the reverse layer order (BRAM on layer 0),
+  and more seeds (10) on the 5 designs where it was significant, to firm up the claim.
+- RQ3 follow-up: channel-thinning at p=0.5 vs p=1 (is p=1, v=0.1 better than p=0.2, v=0.5?);
+  v=0.05 on conv/eltwise; SB location patterns (perimeter/core/rows/columns) at p=0.25.
+- RQ1: add 10 seeds on the 6 designs whose CPD CI crosses zero, if budget allows.

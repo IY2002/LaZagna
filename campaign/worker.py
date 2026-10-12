@@ -192,7 +192,12 @@ def contribute(key: str) -> None:
     # sampler comparison uses a common denominator (see baseline_signature).
     bpath = os.path.join(WORK, "journal", "baseline_" + baseline_signature(cfg) + ".json")
     objective = make_objective(cfg, study=study, shared_baseline_path=bpath)
-    while n_started(study) < sd["target"]:
+    # Target = COMPLETED trials (plus in-flight ones), so pruned/failed trials don't eat the
+    # budget; total attempts are capped at 3x target so a systematic failure cannot loop forever.
+    def n_useful():
+        return sum(1 for t in study.get_trials(deepcopy=False)
+                   if t.state in (optuna.trial.TrialState.COMPLETE, optuna.trial.TrialState.RUNNING))
+    while n_useful() < sd["target"] and n_started(study) < 3 * sd["target"]:
         try:
             study.optimize(objective, n_trials=1)
         except Exception as e:  # one bad trial must not kill the worker

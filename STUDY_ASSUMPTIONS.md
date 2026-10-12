@@ -118,3 +118,11 @@ Entries are added during the run (date, decision, reason).
 - 2026-10-11: **Statistics:** paired by seed; the per-design improvement is the mean of
   per-seed % deltas ± a 95% t-interval; the cross-design summary is the geomean of
   per-design ratios computed over the seeds both sides routed.
+- 2026-10-11: **Optuna workers raised to 64 GB.** At 32 GB, 3D RRG generation (Python,
+  peaking ~19 GB, plus multi-GB file cache counted by the job's memory limit) was killed
+  intermittently, which pruned 20–85% of trials. Workers now count only COMPLETE trials toward
+  the target (attempts are capped at 3× the target).
+- 2026-10-11: **`async2sync` added before `dfflegalize`** for fine-grained async set/reset
+  FFs (mcml). It is a no-op for designs without them.
+- 2026-10-11: **RQ3 reported by strategy:** results are aggregated as the mean over designs at
+  an equal relative link budget (p·v); per-design rows are in docs/study/tables.md.
