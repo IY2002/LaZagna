@@ -127,3 +127,5 @@ fftest_*.out
 fftest_*.err
 exp_*.out
 exp_*.err
+script_*.out
+script_*.err

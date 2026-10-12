@@ -10,6 +10,8 @@
 #   kind     "rq1"    : 2D baseline vs 3D reference (evenly spread columns, both layers alike)
 #            "layout" : one named 3D hard-block arrangement (see LAYOUTS), arch "combined"
 #            "conn"   : 3D reference with a given 3D switch-block connectivity
+#            "custom" : explicit 3D columns (`columns`: [layer0, layer1]) or structured
+#                       params (`structured`: {dsp_on_l0, bram_on_l0, cluster, stagger, band_pos})
 #   design   "koios/<name>" | "vtr/<name>"
 #   seeds    number of placement seeds (default 5)
 #   layout   (layout) name in LAYOUTS
@@ -151,6 +153,17 @@ def run(task: dict) -> dict:
         rec["3d"] = go("three", reference_columns(cfg), cfg.arch_type)
     elif kind == "layout":
         rec["3d"] = go(task["layout"], named_layout(task["layout"], cfg), cfg.arch_type)
+    elif kind == "custom":
+        from lazagna_optuna import structured_columns
+        if "structured" in task:
+            p = task["structured"]
+            n = cfg.width - 2
+            _, nd, nb = column_counts(cfg)
+            spec = structured_columns(n, nd, nb, p["dsp_on_l0"], p["bram_on_l0"], p["cluster"],
+                                      p["stagger"], p["band_pos"])
+        else:
+            spec = ColumnLayoutSpec(task["columns"])
+        rec["3d"] = go("cust", spec, cfg.arch_type)
     elif kind == "conn":
         rec["3d"] = go(f"c{task['conn']}v{task.get('vconn', 1)}".replace(".", ""),
                        reference_columns(cfg), cfg.arch_type,
