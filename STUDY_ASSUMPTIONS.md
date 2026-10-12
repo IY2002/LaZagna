@@ -70,7 +70,9 @@ everything else was decided during the autonomous run, with the reason given.
 - The OpenFPGA backend (fabric, Verilog, bitstream) is skipped. Only VPR metrics are used.
 
 ## Metrics and statistics
-- CPD is "Final critical path delay"; WL is "Total wirelength" (post-route).
+- CPD is "Final critical path delay"; WL is "Total wirelength" (post-route). For
+  multi-clock designs (e.g. robot_rl, softmax) VPR prints no single critical path; CPD is
+  then VPR's "Final geomean non-virtual intra-domain period" (the same quantity for one clock).
 - The search fidelity uses VPR's placement estimates ("Placement estimated critical path
   delay", final BB wirelength). Promoted candidates are routed, and the rank correlation
   (Spearman) between placement estimate and routed result is reported for every study.
@@ -102,3 +104,17 @@ Entries are added during the run (date, decision, reason).
 - 2026-10-11: **Search fidelity for RQ2 Optuna studies: routed** (not placement estimates).
   The chosen designs route in minutes, and on eltwise the placement-estimated CPD ranked
   layouts poorly (Spearman 0.40 over 4 trials).
+- 2026-10-11: **Bug found and fixed: corrupted VPR logs.** VPR writes `vpr_stdout.log` in its
+  working directory, and the console redirect used the same name, so two writers interleaved
+  lines. All batch-1 results produced before the fix were discarded and rerun (archived in
+  `campaign_work/study/results_v0_corrupt_logs`). The eltwise numbers from the first fast-flow
+  test (+5.2% CPD / +15.6% WL) were measured before the fix and are superseded by the batch-1 rerun.
+- 2026-10-11: **Async-reset flip-flops:** `adff2dff` now runs before `dfflegalize`. The CLB FF
+  has no async reset, so async resets become synchronous logic, as in VTR's own flow. This
+  fixed mcml's synthesis.
+- 2026-10-11: **Excluded: lenet, tdarknet_like.small.** Yosys synthesis succeeds, but
+  OpenFPGA's post-synthesis `read_blif; write_verilog` step crashes (`dict::at()`), and the
+  flow drops the run. Peripheral designs, so not pursued.
+- 2026-10-11: **Statistics:** paired by seed; the per-design improvement is the mean of
+  per-seed % deltas ± a 95% t-interval; the cross-design summary is the geomean of
+  per-design ratios computed over the seeds both sides routed.
