@@ -34,15 +34,14 @@ Read at every loop iteration. Update "State" and "Next" before ending each itera
   attention_layer = 13967295, stereovision1 = 13967296 (journal in campaign_work/study_optuna,
   target 45 COMPLETE trials).
 - mcml retry (async2sync) = 13967311.
+- Batch 3 = 13967354 (66 tasks, %16): RQ2 10-seed confirmation (6 designs × aligned/split_types/
+  split_rev/hb_one_layer/hb_top, tag s10); RQ3 SB location (core/perimeter/rows/columns at
+  p=0.25) and mixed strategies (p=0.2,v=0.5; p=0.5,v=0.2) on 6 designs.
 
 ## Next
 - When the Optuna studies have ≥30 complete trials each, run analyze_optuna.py via
   run_script.sbatch (WORK_ROOT=campaign_work/study_optuna). Then submit
   tasks_validate.jsonl (copied into campaign_work/study) with experiment.sbatch to get the top
   layouts at 5 seeds.
-- RQ2 follow-up (batch 3): split_types is the most interesting layout. Test it with clustering
-  per layer (DSP layer spread vs BRAM layer spread), the reverse layer order (BRAM on layer 0),
-  and more seeds (10) on the 5 designs where it was significant, to firm up the claim.
-- RQ3 follow-up: channel-thinning at p=0.5 vs p=1 (is p=1, v=0.1 better than p=0.2, v=0.5?);
-  v=0.05 on conv/eltwise; SB location patterns (perimeter/core/rows/columns) at p=0.25.
+- Batch 3 analysis goes in the 'confirmation' and 'location' sections of tables.md.
 - RQ1: add 10 seeds on the 6 designs whose CPD CI crosses zero, if budget allows.
