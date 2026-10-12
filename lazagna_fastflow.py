@@ -45,6 +45,10 @@ VPR_REL = "OpenFPGA/build/vtr-verilog-to-routing/vpr/vpr"
 _PLACE_CPD = re.compile(r"Placement estimated critical path delay \(least slack\):\s*([\d.eE+-]+)\s*ns")
 _PLACE_WL = re.compile(r"BB estimate of min-dist \(placement\) wire length:\s*(\d+)")
 _ROUTE_CPD = re.compile(r"Final critical path delay \(least slack\):\s*([\d.eE+-]+)\s*ns")
+# Multi-clock designs: VPR prints no single critical path, only the geomean period over
+# clock domains (identical to the critical path delay for single-clock designs).
+_PLACE_PERIOD = re.compile(r"Placement estimated geomean non-virtual intra-domain period:\s*([\d.eE+-]+)\s*ns")
+_ROUTE_PERIOD = re.compile(r"Final geomean non-virtual intra-domain period:\s*([\d.eE+-]+)\s*ns")
 # Require the full line: standalone VPR's stderr can splice into a stdout line mid-number.
 _ROUTE_WL = re.compile(r"Total wirelength:\s*(\d+),\s*average net length")
 _REPACK = "Packing failed to fit on device"
@@ -336,11 +340,15 @@ def _setup_device(arch_path: str, opts, lazagna_root: str, timeout_s: int) -> di
 
 def parse_vpr_log(text: str) -> dict:
     d = {"succeeded": "VPR succeeded" in text}
-    m = _PLACE_CPD.findall(text)
+    m = _PLACE_CPD.findall(text) or _PLACE_PERIOD.findall(text)
     d["place_cpd"] = float(m[-1]) * 1e-9 if m else None
     m = _PLACE_WL.findall(text)
     d["place_wl"] = float(m[-1]) if m else None
     m = _ROUTE_CPD.findall(text)
+    d["cpd_source"] = "critical_path" if m else None
+    if not m:
+        m = _ROUTE_PERIOD.findall(text)
+        d["cpd_source"] = "geomean_period" if m else None
     d["route_cpd"] = float(m[-1]) * 1e-9 if m else None
     m = _ROUTE_WL.findall(text)
     d["route_wl"] = float(m[-1]) if m else None
@@ -378,8 +386,13 @@ def evaluate(arch_xml: str, opts, blif: str, net: str, seeds, stage: str = "rout
     def one(seed):
         d = os.path.join(dev["folder"], f"seed_{seed}")
         os.makedirs(d, exist_ok=True)
+        # VPR writes its own vpr_stdout.log in the cwd. Console output goes to a DIFFERENT
+        # file: two writers on one file interleave lines and corrupt the numbers.
+        console = os.path.join(d, "vpr_console.log")
+        rc, msg = _run(base + ["--seed", str(seed)] + extra, cwd=d, timeout_s=timeout_s, log_path=console)
         log = os.path.join(d, "vpr_stdout.log")
-        rc, msg = _run(base + ["--seed", str(seed)] + extra, cwd=d, timeout_s=timeout_s, log_path=log)
+        if not os.path.exists(log):
+            log = console
         text = open(log, errors="ignore").read() if os.path.exists(log) else ""
         r = parse_vpr_log(text)
         r.update(seed=seed, rc=rc, error=None if rc == 0 else (msg or text[-600:]))

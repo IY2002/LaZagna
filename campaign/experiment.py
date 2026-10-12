@@ -113,8 +113,9 @@ def stage(entry: str) -> str:
     dst = os.path.join(d, name + ".v")
     if not os.path.exists(dst):
         os.makedirs(d, exist_ok=True)
-        shutil.copy(os.path.join(ROOT, SUITES[suite], name + ".v"), dst + ".tmp")
-        os.replace(dst + ".tmp", dst)
+        tmp = f"{dst}.{os.getpid()}.{os.environ.get('TASK_INDEX', '')}.tmp"  # unique: tasks race here
+        shutil.copy(os.path.join(ROOT, SUITES[suite], name + ".v"), tmp)
+        os.replace(tmp, dst)
     return d
 
 

@@ -107,8 +107,10 @@ opt -undriven -fine -nodffe -nosdff
 #########################
 # Map flip-flops
 #########################
-dfflegalize -cell $_DFF_P_ 0
+# Async-reset FFs become plain FFs + logic first (the CLB FF has no async reset), then legalize.
+# Order matters: dfflegalize aborts on any async-reset FF still present.
 techmap -map +/adff2dff.v
+dfflegalize -cell $_DFF_P_ 0
 opt_expr -mux_undef
 simplemap
 opt_expr
