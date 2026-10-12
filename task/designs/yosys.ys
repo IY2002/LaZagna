@@ -115,6 +115,10 @@ techmap -map +/adff2dff.v
 async2sync
 dfflegalize -cell $_DFF_P_ 0
 opt_expr -mux_undef
+# Generic techmap: lower any coarse cell still left at this point. fsm/opt passes after the
+# earlier techmap can create $pmux, which simplemap/abc do not map and which then reached the
+# BLIF as an unknown .subckt (mcml, lenet, tdarknet). A no-op for designs without such cells.
+techmap
 simplemap
 opt_expr
 opt_merge
