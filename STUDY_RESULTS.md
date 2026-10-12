@@ -1,76 +1,80 @@
-# 3D FPGA Architecture Study: Results
+# Architectural Exploration of Two-Layer 3D FPGAs with LaZagna: Results
 
-Status: **in progress, preliminary**. The autonomous run updates this file as experiments
-finish. Numbers come from `docs/study/tables.md`, which `campaign/analyze.py` regenerates from
-`campaign_work/study/results/*.json`. Assumptions are in STUDY_ASSUMPTIONS.md.
+Status: **final rerun in progress.** Every number below will be regenerated from the final
+single-synthesis-version results (`campaign_work/study/results/`) by `campaign/analyze.py`
+into `docs/study/tables.md`, with figures in `docs/study/figs/`. Sections marked ⟨pending⟩
+are filled in once the final rerun completes. The pre-final findings (mixed synthesis
+versions) are in git history (commit bb8815a and later). Assumptions are in STUDY_ASSUMPTIONS.md.
 
-Setup in one paragraph: VTR-style `dsp_bram` architecture with 4-row DSPs and 6-row
-single-port BRAMs, a fixed 75/12.5/12.5 column mix, and channel width 300. Each design gets
-a 2D device sized so its binding resource is 80% used, and a 2-layer 3D device with the same
-tile count. 3D switch blocks connect the layers (LaZagna). Synthesis and packing happen once
-per design, then VPR place-and-route runs with 5 paired seeds. Gains are reported as
-mean ± 95% CI over seeds.
+## 1. Method
 
-## Key findings so far
+**Architecture.** A VTR-style `dsp_bram` fabric:
+- CLBs with 10 fracturable 6-LUTs;
+- 4-row DSP blocks (one 27×27 or two 18×19 multipliers);
+- 6-row single-port 20 Kb BRAMs (512×40, 1K×20 or 2K×10);
+- a fixed column mix of 75% CLB, 12.5% DSP and 12.5% BRAM;
+- channel width 300;
+- LaZagna 3D switch blocks between two layers, with an inter-layer delay ratio of 0.739
+  unless stated otherwise.
 
-1. **RQ1: 3D shortens wires on every design and speeds up the hard-block-heavy ones.**
-   Over 20 designs, 3D reduces routed wirelength on **20/20 (geomean +8.2%)** and CPD by
-   **+3.8% geomean** (13/20 better; the CPD intervals are wide). The size of the gain tracks
-   how much of the design's area is hard blocks: Spearman **+0.71** for the WL gain (+0.44
-   for CPD). It is anti-correlated with CLB utilization (−0.55). The interpretation: in 2D,
-   tall DSP/BRAM columns push the logic apart, and a second layer brings the logic that talks
-   to those columns closer. Logic-dominated designs (bgm, blob_merge, LU8PEEng) gain ≈0 CPD
-   and +2–6% WL; sparse, BRAM-dominated spmv gains +24.5% CPD and +16% WL.
-2. **RQ2: spread hard blocks within a layer, and give each hard-block type its own layer.**
-   (12 designs at 5 seeds, 6 of them confirmed at 10 seeds, plus a 5-parameter Optuna search
-   on 3 designs.)
-   - **Clustering hard blocks is the dominant penalty.** Center −5.1% WL / −5.4% CPD, edges
-     −12.1% / −4.7% (up to −28% WL). In the Optuna search, the `cluster` parameter has the
-     strongest negative rank correlation with the WL gain in every design (−0.27, −0.57, −0.79).
-   - **Type-dedicated layers (DSP on one layer, BRAM on the other) shorten wires
-     consistently:** +1.8 to +5.3% WL on 6/6 designs at 10 seeds (CI about ±1%), with CPD
-     neutral. Layer order doesn't matter: BRAM on the bottom gives +2.1 to +5.3%. Over the 12
-     designs at 5 seeds it averages +1.5% WL.
-   - **The search rediscovers this without being told:** its best layouts put most BRAM
-     columns on one layer and most DSP columns on the other (e.g. BRAM 12–16 of 16 on layer 0
-     with DSP only 4–7 of 16) at low clustering, for +2–3% WL at 3 seeds.
-   - **Putting all hard blocks on one layer (a logic-only die) is ≈ neutral:** −2..+3% WL
-     depending on the design and which layer, with CPD within noise. Staggering the layers
-     does nothing (−0.1% WL).
-   - **Mechanism (interpretation):** with types on separate layers, each layer has twice as
-     many columns of its type at half the pitch, so any logic is laterally closer to its
-     nearest DSP (on one die) and its nearest BRAM (on the other), one vertical hop away.
-   - **Implication:** function-dedicated dies (a DSP die and a BRAM die, or hard blocks
-     separated from logic) cost nothing in performance and slightly reduce wiring. That
-     supports heterogeneous 3D integration.
-3. **RQ3: thin the vertical links per switch block, don't remove switch blocks.** At an
-   equal link budget (mean over 6 designs):
+**Equal-resource comparison.** For each design, the 2D device is the smallest near-square
+grid on which every block type is at most 80% used. The 3D device has two layers whose total
+tile count matches the 2D device. Interior heights are multiples of 12, so tall blocks tile
+exactly.
 
-   | vertical links kept | fewer 3D switch blocks (CPD / WL) | fewer crossing channels (CPD / WL) |
-   |---|---|---|
-   | 50% | −1.3% / −0.8% | −0.1% / +0.2% |
-   | 25% | −1.8% / −1.8% | −1.1% / +0.2% |
-   | 10% | **−5.4% / −6.1%** | **−0.5% / −0.7%** |
-   | 5% | – | −0.6% / −2.2% |
+**Flow.**
+- Yosys synthesis and VPR packing run once per design. The synthesis is LaZagna's flow with
+  fixes for VTR primitives, ROMs mapped to BRAM, and single-write-port memories.
+- The packed netlist is reused for every architecture variant. Routed results were verified
+  bit-identical against the full per-run flow.
+- Each configuration is placed (`cube_bb`) and routed with VPR on 5 fixed seeds (10 for
+  confirmation runs). All comparisons are paired by seed.
+- Metrics:
+  - CPD is the final critical path delay; for multi-clock designs it is VPR's geomean
+    intra-domain period.
+  - WL is the routed wirelength.
+  - Per-design gains are the mean ± 95% t-interval over seeds; cross-design summaries are
+    geometric means.
 
-   Keeping every switch block 3D with only 5–10% of its channels crossing preserves
-   almost all of the 3D benefit (the 2D device is 9–19% worse in WL on these designs). That
-   is a 10–20× reduction in inter-die connections (micro-bumps/TSVs/hybrid-bond pads).
-   Mixed strategies at the same 10% budget fall in between (p 0.5 × v 0.2: −1.5% WL;
-   p 0.2 × v 0.5: −3.3%). **The more evenly the vertical links are spread, the better.**
-   - **Where 3D switch blocks go matters at a fixed budget** (p = 0.25): evenly interleaved
-     or core placement costs −0.1 to −4.9% WL, rows or columns cost −2 to −8%, and
-     concentrating them at the perimeter costs **−11 to −22% WL and up to −40% CPD**. Vertical
-     links belong distributed over the core of the fabric, not at its edges.
+**Benchmarks.** Koios (deep-learning, DSP/BRAM-heavy) and VTR designs, chosen by their
+measured hard-block demand in a synthesis+pack characterization of 40 candidates. §6 lists
+the exclusions and their reasons.
 
-## Detailed tables
+## 2. RQ1: 3D vs 2D at equal resources ⟨pending final numbers⟩
 
-See `docs/study/tables.md` (regenerated) and figures in `docs/study/figs/`.
+## 3. RQ2: hard-block placement across layers ⟨pending final numbers⟩
 
-## Limitations (so far)
+## 4. RQ3: vertical connectivity vs cost ⟨pending final numbers⟩
 
-- CPD seed noise is ±4–6% (95% CI), so single-design CPD differences under ~5% are not
-  significant. The WL conclusions are much tighter (±1–3%).
-- Single architecture family (one CLB, one routing architecture, channel width 300). Two layers only.
-- BRAM read-enable and write-port approximations (STUDY_ASSUMPTIONS.md) affect functional
-  behavior, not routing structure.
+## 5. A recommended 3D architecture ⟨pending final numbers⟩
+
+## 6. Limitations and threats to validity
+
+- One architecture family: one CLB, one routing architecture, one channel width, two layers.
+- Per-design CPD seed noise is ±4–6% (95% CI); the WL conclusions are much tighter (±1–3%).
+- **Memory-mapping approximations:** write ports are merged, and the BRAM read enable is
+  ignored. This changes some designs' functional behavior but not their routing structure.
+  Asynchronous-read memories stay in soft logic, because the architecture has no LUTRAM.
+- **Excluded designs:**
+  - gemm_layer: about 7 h per routed configuration (pre-final RQ1 result only);
+  - lenet: synthesis-flow bug found late, fixed after the final run;
+  - tdarknet_like.small: 3005 BRAMs require a 455×398 device;
+  - boundtop and tpu.16x16.int8: multiply-driven nets in the source;
+  - ch_intrinsics: benchmark bug (undeclared RAM enables);
+  - matmul_8x8_fp16: needs a floating-point MAC hard block;
+  - tiny or IO-bound designs whose 3D device can't match the 2D tile count.
+- The structured Optuna search ran on an earlier synthesis version; its top layouts are
+  re-validated on the final flow.
+
+## 7. Reproduction
+
+```bash
+# characterization (synthesis + pack, all candidates)
+CHARACTERIZE=1 bash submit_campaign.sh
+# fixed-configuration experiments (task list = campaign_work/study/tasks_final.jsonl)
+sbatch -A <acct> --array=0-278%28 \
+  --export=ALL,WORK_ROOT=$PWD/campaign_work/study,TASKS=$PWD/campaign_work/study/tasks_final.jsonl \
+  experiment.sbatch
+# analysis (host, needs matplotlib)
+python3 campaign/analyze.py campaign_work/study docs/study
+```
