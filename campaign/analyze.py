@@ -87,6 +87,36 @@ def fmt(m, ci):
     return f"{m:+.1f} ± {ci:.1f}" if ci == ci else f"{m:+.1f}"
 
 
+def hb_share(r):
+    """Fraction of the used area (tile rows) taken by hard blocks: DSP 4 rows, BRAM 6 rows."""
+    dm = r["sizing"]["demand"]
+    clb, dsp, bram = dm.get("clb", 0), dm.get("complex_dsp", 0), dm.get("spram", 0)
+    tot = clb + 4 * dsp + 6 * bram
+    return (4 * dsp + 6 * bram) / tot if tot else 0.0
+
+
+def spearman(xs, ys):
+    def ranks(v):
+        o = sorted(range(len(v)), key=lambda i: v[i])
+        r = [0.0] * len(v)
+        i = 0
+        while i < len(o):
+            j = i
+            while j + 1 < len(o) and v[o[j + 1]] == v[o[i]]:
+                j += 1
+            for k in range(i, j + 1):
+                r[o[k]] = (i + j) / 2.0
+            i = j + 1
+        return r
+    if len(xs) < 3:
+        return float("nan")
+    rx, ry = ranks(xs), ranks(ys)
+    mx, my = sum(rx) / len(rx), sum(ry) / len(ry)
+    c = sum((a - mx) * (b - my) for a, b in zip(rx, ry))
+    sx = math.sqrt(sum((a - mx) ** 2 for a in rx)); sy = math.sqrt(sum((b - my) ** 2 for b in ry))
+    return c / (sx * sy) if sx and sy else float("nan")
+
+
 def short(design):
     return design.split("/", 1)[1]
 
@@ -144,6 +174,20 @@ def rq1(rows, lines, plt):
     wins_w = sum(1 for d in data if d["w"] > 0)
     lines += ["", f"**Geomean over {len(data)} designs: CPD {gc:+.1f}%, WL {gw:+.1f}%.** "
               f"3D wins CPD on {wins_c}/{len(data)} and WL on {wins_w}/{len(data)} designs.", ""]
+    # What explains the gain? Spearman of the gain against device and design properties.
+    feats = {
+        "2D device side (sqrt tiles)": lambda d, r: math.sqrt(r["sizing"]["tiles_2d"]),
+        "hard-block share of used tiles": lambda d, r: hb_share(r),
+        "CLB utilization": lambda d, r: d["u"]["clb"],
+        "max(DSP,BRAM) utilization": lambda d, r: max(d["u"]["complex_dsp"], d["u"]["spram"]),
+    }
+    byd = {short(r["task"]["design"]): r for r in rows.values() if r["task"]["kind"] == "rq1" and "error" not in r}
+    lines += ["| property | Spearman vs CPD gain | Spearman vs WL gain |", "|---|---|---|"]
+    for name, fn in feats.items():
+        xs = [fn(d, byd[d["design"]]) for d in data]
+        lines.append(f"| {name} | {spearman(xs, [d['c'] for d in data]):+.2f} | "
+                     f"{spearman(xs, [d['w'] for d in data]):+.2f} |")
+    lines.append("")
 
     fig, axes = plt.subplots(1, 2, figsize=(9, 0.32 * len(data) + 1.2), sharey=True)
     ys = list(range(len(data)))[::-1]
@@ -169,6 +213,11 @@ def rq2(rows, lines, plt):
     for tid, r in rows.items():
         if r["task"]["kind"] == "layout" and "error" not in r:
             by.setdefault(short(r["task"]["design"]), {})[r["task"]["layout"]] = r
+    # The RQ1 3D run uses the same device and the same (aligned) reference layout.
+    for tid, r in rows.items():
+        d = short(r["task"]["design"])
+        if r["task"]["kind"] == "rq1" and "error" not in r and d in by and "aligned" not in by[d]:
+            by[d]["aligned"] = {"3d": r["3d"]}
     designs = sorted(d for d in by if "aligned" in by[d])
     if not designs:
         return
@@ -242,29 +291,35 @@ def rq3(rows, lines, plt):
               "crossing. Change vs full connectivity (p = 1, v = 1); positive = better. The 2D "
               "device (no vertical links) is shown for scale.", "",
               "| design | config | relative links | CPD vs full % | WL vs full % |", "|---|---|---|---|---|"]
-    fig, axes = plt.subplots(1, 2, figsize=(9, 3.2))
+    fig, axes = plt.subplots(1, 2, figsize=(9.5, 3.4))
     for i, d in enumerate(designs):
         full = by[d][(1.0, 1.0)]["3d"]
-        pts = []
+        psweep, vsweep = [(1.0, 0.0, 0.0)], [(1.0, 0.0, 0.0)]
         for (p, v), r in sorted(by[d].items()):
             if (p, v) == (1.0, 1.0):
                 continue
             (c, cci, _), (w, wci, _) = paired(full, r["3d"])
             lines.append(f"| {d} | p={p:g}, v={v:g} | {p*v:.2f} | {fmt(c, cci)} | {fmt(w, wci)} |")
             if v == 1.0:
-                pts.append((p, c, w))
+                psweep.append((p, c, w))
+            elif p == 1.0:
+                vsweep.append((v, c, w))
         two = paired(full, by[d][(1.0, 1.0)]["2d"])
         lines.append(f"| {d} | 2D device | 0 | {fmt(*two[0][:2])} | {fmt(*two[1][:2])} |")
-        pts.append((1.0, 0.0, 0.0))
-        pts.sort()
         col = CATEGORICAL[i % len(CATEGORICAL)]
         for ax, k in ((axes[0], 1), (axes[1], 2)):
-            ax.plot([q[0] for q in pts], [q[k] for q in pts], color=col, lw=2, marker="o", ms=5, label=d)
+            ps, vs = sorted(psweep), sorted(vsweep)
+            ax.plot([q[0] for q in ps], [q[k] for q in ps], color=col, lw=2, marker="o", ms=5,
+                    label=f"{d}: fewer 3D switch blocks (p)")
+            if len(vs) > 1:
+                ax.plot([q[0] for q in vs], [q[k] for q in vs], color=col, lw=2, ls="--", marker="s",
+                        ms=5, label=f"{d}: fewer crossing channels (v)")
     for ax, t in ((axes[0], "CPD vs full connectivity (%)"), (axes[1], "WL vs full connectivity (%)")):
         ax.axhline(0, color=INK2, lw=0.8)
-        ax.set_xlabel("fraction of switch blocks with vertical links (p)")
+        ax.set_xscale("log")
+        ax.set_xlabel("relative number of vertical links (p·v)")
         ax.set_title(t, loc="left")
-    axes[1].legend(loc="lower right", fontsize=8)
+    axes[1].legend(loc="lower right", fontsize=6.5)
     fig.tight_layout()
     fig.savefig(os.path.join(FIGS, "rq3_connectivity.png"), dpi=200)
     plt.close(fig)
