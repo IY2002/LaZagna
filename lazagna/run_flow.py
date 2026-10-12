@@ -50,7 +50,10 @@ def run_command_in_temp_dir(command, original_dir, handle_error=True, verbose=Fa
                 print_verbose(e.stdout)
                 print_verbose(e.stderr)
             if handle_error:
-                raise
+                # Keep the child's own error text: without it a failure (e.g. in 3d_sb_creator)
+                # surfaces only as "returned non-zero exit status 1".
+                raise RuntimeError(f"{e}\n--- stderr ---\n{(e.stderr or '')[-3000:]}"
+                                   f"\n--- stdout ---\n{(e.stdout or '')[-1500:]}") from e
         except FileNotFoundError:
             print_verbose(os.getcwd())
             print_verbose("Command not found. Please check the path and permissions.")

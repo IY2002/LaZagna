@@ -21,19 +21,28 @@ mean ± 95% CI over seeds.
    tall DSP/BRAM columns push the logic apart, and a second layer brings the logic that talks
    to those columns closer. Logic-dominated designs (bgm, blob_merge, LU8PEEng) gain ≈0 CPD
    and +2–6% WL; sparse, BRAM-dominated spmv gains +24.5% CPD and +16% WL.
-2. **RQ2: where hard blocks sit within a layer matters; which layer they sit on barely does,
-   and separating DSP from BRAM by layer helps slightly.** (12 designs, vs evenly spread,
-   layer-aligned columns.)
-   - Clustering hard blocks hurts: center −5.1% WL / −5.4% CPD, edges −12.1% / −4.7% (up to
-     −28% WL). The one exception is arm_core, which has no DSPs.
-   - Vertical re-arrangements are within noise for CPD: all hard blocks on one layer gives
-     −0.4% CPD / +0.5% WL; layer 1 staggered by half a pitch gives −0.5% / −0.1%.
-   - **DSP on one layer and BRAM on the other gives +1.5% WL on average**, positive on 8/12
-     designs and significant on 5 (mkDelayWorker32B +5.3 ± 1.9, stereovision2 +4.3 ± 2.0,
-     eltwise +3.0 ± 2.2, reduction +2.4 ± 1.1, conv +2.3 ± 1.2), with CPD −0.6% (noise).
-   - **Implication:** dedicating layers by function (a logic-only die over a hard-block die,
-     or DSP and BRAM on separate dies) costs ≈nothing and can shorten wires. That favors
-     heterogeneous 3D integration (different process nodes or IP per die).
+2. **RQ2: spread hard blocks within a layer, and give each hard-block type its own layer.**
+   (12 designs at 5 seeds, 6 of them confirmed at 10 seeds, plus a 5-parameter Optuna search
+   on 3 designs.)
+   - **Clustering hard blocks is the dominant penalty.** Center −5.1% WL / −5.4% CPD, edges
+     −12.1% / −4.7% (up to −28% WL). In the Optuna search, the `cluster` parameter has the
+     strongest negative rank correlation with the WL gain in every design (−0.27, −0.57, −0.79).
+   - **Type-dedicated layers (DSP on one layer, BRAM on the other) shorten wires
+     consistently:** +1.8 to +5.3% WL on 6/6 designs at 10 seeds (CI about ±1%), with CPD
+     neutral. Layer order doesn't matter: BRAM on the bottom gives +2.1 to +5.3%. Over the 12
+     designs at 5 seeds it averages +1.5% WL.
+   - **The search rediscovers this without being told:** its best layouts put most BRAM
+     columns on one layer and most DSP columns on the other (e.g. BRAM 12–16 of 16 on layer 0
+     with DSP only 4–7 of 16) at low clustering, for +2–3% WL at 3 seeds.
+   - **Putting all hard blocks on one layer (a logic-only die) is ≈ neutral:** −2..+3% WL
+     depending on the design and which layer, with CPD within noise. Staggering the layers
+     does nothing (−0.1% WL).
+   - **Mechanism (interpretation):** with types on separate layers, each layer has twice as
+     many columns of its type at half the pitch, so any logic is laterally closer to its
+     nearest DSP (on one die) and its nearest BRAM (on the other), one vertical hop away.
+   - **Implication:** function-dedicated dies (a DSP die and a BRAM die, or hard blocks
+     separated from logic) cost nothing in performance and slightly reduce wiring. That
+     supports heterogeneous 3D integration.
 3. **RQ3: thin the vertical links per switch block, don't remove switch blocks.** At an
    equal link budget (mean over 6 designs):
 
@@ -47,6 +56,12 @@ mean ± 95% CI over seeds.
    Keeping every switch block 3D with only 5–10% of its channels crossing preserves
    almost all of the 3D benefit (the 2D device is 9–19% worse in WL on these designs). That
    is a 10–20× reduction in inter-die connections (micro-bumps/TSVs/hybrid-bond pads).
+   Mixed strategies at the same 10% budget fall in between (p 0.5 × v 0.2: −1.5% WL;
+   p 0.2 × v 0.5: −3.3%). **The more evenly the vertical links are spread, the better.**
+   - **Where 3D switch blocks go matters at a fixed budget** (p = 0.25): evenly interleaved
+     or core placement costs −0.1 to −4.9% WL, rows or columns cost −2 to −8%, and
+     concentrating them at the perimeter costs **−11 to −22% WL and up to −40% CPD**. Vertical
+     links belong distributed over the core of the fabric, not at its edges.
 
 ## Detailed tables
 

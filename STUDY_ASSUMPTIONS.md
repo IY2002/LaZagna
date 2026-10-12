@@ -126,3 +126,11 @@ Entries are added during the run (date, decision, reason).
   FFs (mcml). It is a no-op for designs without them.
 - 2026-10-11: **RQ3 reported by strategy:** results are aggregated as the mean over designs at
   an equal relative link budget (p·v); per-design rows are in docs/study/tables.md.
+- 2026-10-11: **Layer-order controls added** (split_rev = BRAM on layer 0, hb_top = hard blocks on
+  layer 1). With symmetric IO on both layers, the layer index should not matter; the controls
+  test that.
+- 2026-10-11: **`run_command_in_temp_dir` now raises with the child's stderr attached**
+  (lazagna/run_flow.py). Before, any 3d_sb_creator failure appeared only as "exit status 1".
+- 2026-10-11: **Optuna validation:** the top 3 structured layouts per design (by CPD gain + WL
+  gain at 3 seeds) are re-run at 5 seeds against the aligned reference (the RQ1 3D run, same
+  seeds 1–5) to remove selection bias from the search.

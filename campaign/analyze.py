@@ -409,6 +409,22 @@ if __name__ == "__main__":
     rq2(rows, lines, plt)
     rq3(rows, lines, plt)
     confirm(load_tagged(), rows, lines)
+    # Optuna top layouts re-run at 5 seeds vs the aligned reference (RQ1 3D side, same seeds)
+    cust = [r for r in rows.values() if r["task"]["kind"] == "custom" and "error" not in r]
+    if cust:
+        ref = {short(r["task"]["design"]): r for r in rows.values() if r["task"]["kind"] == "rq1" and "error" not in r}
+        lines += ["## RQ2: best searched layouts, re-run at 5 seeds", "",
+                  "| design | trial | DSP on L0 / BRAM on L0 | cluster | stagger | CPD gain % vs aligned | WL gain % vs aligned |",
+                  "|---|---|---|---|---|---|---|"]
+        for r in sorted(cust, key=lambda r: r["task"]["id"]):
+            d = short(r["task"]["design"]); p = r["task"].get("structured", {})
+            if d in ref:
+                (c, cci, _), (w, wci, _) = paired(ref[d]["3d"], r["3d"])
+                tot_d, tot_b = 2 * r["cols_per_layer"][1], 2 * r["cols_per_layer"][2]
+                lines.append(f"| {d} | {r['task']['id'].split('__')[-1]} | {p.get('dsp_on_l0')}/{tot_d} , "
+                             f"{p.get('bram_on_l0')}/{tot_b} | {p.get('cluster', 0):.2f} | {p.get('stagger', 0):.2f} | "
+                             f"{fmt(c, cci)} | {fmt(w, wci)} |")
+        lines.append("")
     if failed:
         lines += ["## Failed runs", ""] + [f"- {t}: {(rows[t].get('error') or (rows[t].get('3d') or {}).get('error') or (rows[t].get('2d') or {}).get('error'))[:160]}" for t in sorted(failed)] + [""]
     open(os.path.join(OUT, "tables.md"), "w").write("\n".join(lines))
