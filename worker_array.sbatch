@@ -58,7 +58,7 @@ export APPTAINERENV_STUDIES="${STUDIES:-columns promote tpe nsga2 random}"
 export APPTAINERENV_BATCH="${BATCH:-}"
 export APPTAINERENV_CW="${CW:-300}"   # lab standard channel width
 # Fast-flow knobs (see campaign/worker.py): placement-only search fidelity, target utilization.
-for v in FIDELITY TARGET_UTIL TALL COLUMNS_DESIGN PROMOTE_TOP PROMOTE_RANDOM; do
+for v in FIDELITY TARGET_UTIL TALL COLUMNS_DESIGN PROMOTE_TOP PROMOTE_RANDOM SEARCH_MODE; do
   if [ -n "${!v:-}" ]; then export "APPTAINERENV_$v=${!v}"; fi
 done
 [ -n "${KEEP_RRG:-}" ] && export APPTAINERENV_KEEP_RRG="$KEEP_RRG"

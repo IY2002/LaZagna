@@ -28,18 +28,25 @@ Read at every loop iteration. Update "State" and "Next" before ending each itera
   limitations; reproduce commands.
 
 ## State
-- Characterization v2 (job 13965227/13965228): 36/40 done at 21:05; gemm, clstm.small, mcml,
-  lenet still synthesizing. Table in characterize_13965228_0.out when done.
-- Batch 1 (job 13965777, 86 tasks, %24): RQ2 layouts (6 designs × 7), RQ3 connectivity
-  (4 designs × 6), RQ1 (20 designs). Results go to campaign_work/study/results/*.json.
-- New runner: campaign/experiment.py + experiment.sbatch (task file, one JSON per line).
+- Characterization v2 complete (characterize_13965228_0.out). New since the last snapshot:
+  clstm_like.small (148×182, CLB/DSP/BRAM 80/45/45%), gemm_layer (228×230, logic-bound).
+  mcml needed the adff2dff fix (re-prep on first use). lenet/tdarknet are excluded.
+- Batch 1 RERUN = job 13966093 (86 tasks, %26) after fixing the log-clash corruption. The old
+  results are archived in campaign_work/study/results_v0_corrupt_logs (untrusted).
+- Untrusted preview from the old batch-1 results: 3D wins WL on 14/14 designs (geomean
+  +7.4%); CPD mixed (geomean +2.3%), best on tpu_like.small.os/ws (+7..11%). Layouts: edges
+  and center clustering hurt WL a lot on conv/stereovision1; split_types is slightly positive.
+- analyze.py works: `python3 campaign/analyze.py campaign_work/study docs/study`.
+- New: `structured` search mode (5 interpretable params: dsp_on_l0, bram_on_l0, cluster,
+  stagger, band_pos), wired into worker.py via SEARCH_MODE.
 
 ## Next
-- Check the first batch 1 results for errors (exp_13965777_*.out). Fix and resubmit failed tasks
-  (finished ones are skipped automatically).
-- Write campaign/analyze.py: RQ1 table (2D vs 3D per design, geomean, seed spread), RQ2
-  table (layout vs aligned), RQ3 curves. Figures to campaign_work/study/figs, copied
-  into docs/study_figs for the write-up.
-- Launch Optuna column studies (FIDELITY=route) for tpu_like.small.os and attention_layer
-  (4 workers each, ~40 trials) once batch 1 has freed slots.
-- Add gemm/clstm/mcml/lenet to RQ1 if they characterize cleanly.
+- When the batch-1 rerun frees slots, launch structured Optuna studies (FIDELITY=route, SEEDS=3,
+  ~50 trials, 3 workers each) for tpu_like.small.os, attention_layer, stereovision1 and
+  conv_layer. WORK_ROOT=campaign_work/study_optuna, campaign.env with SEEDS/TRIALS_COLUMNS/
+  STUDIES=columns/FIDELITY=route/SEARCH_MODE=structured; COLUMNS_DESIGN via --export.
+- Batch 2 ideas, decided from the batch-1 data: RQ1 adds clstm_like.small, mcml, gemm_layer
+  (large, jobs=2); RQ3 adds SB location patterns (core/perimeter/rows/columns) at p≈0.25;
+  delay-ratio sensitivity (0.5, 1.0, 1.5) on 3 designs; 5-seed validation of the top
+  structured layouts (needs a 'custom' layout kind with explicit columns in experiment.py).
+- Run analyze.py, and write STUDY_RESULTS.md once batch 1 is clean.

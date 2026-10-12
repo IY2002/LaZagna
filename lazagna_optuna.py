@@ -211,6 +211,73 @@ def sample_columns(trial: optuna.Trial, cfg: SearchConfig) -> ColumnLayoutSpec:
     return ColumnLayoutSpec(columns=cols)
 
 
+def structured_columns(n: int, n_dsp: int, n_bram: int, dsp_l0: int, bram_l0: int,
+                       cluster: float, stagger: float, band_pos: float) -> ColumnLayoutSpec:
+    """Interpretable two-layer hard-block arrangement with fixed totals.
+
+    n_dsp/n_bram: columns PER LAYER in the reference, so the device holds 2*n_dsp DSP and
+    2*n_bram BRAM columns in total. dsp_l0/bram_l0: how many of those go on layer 0 (the rest
+    on layer 1). cluster: 0 = evenly spread over the layer, 1 = one contiguous band.
+    band_pos: band center as a fraction of the width (used as cluster -> 1). stagger: shift
+    of layer 1 positions relative to layer 0, as a fraction of the layer-0 pitch."""
+    def positions(k, shift_frac):
+        if k == 0:
+            return []
+        even = [(i + 0.5) * n / k for i in range(k)]
+        center = band_pos * n
+        band = [center + (i - (k - 1) / 2.0) for i in range(k)]
+        pitch = n / k
+        out = []
+        for e, b in zip(even, band):
+            x = (1 - cluster) * e + cluster * b + shift_frac * pitch * (1 - cluster)
+            out.append(x)
+        return out
+
+    def place(k_dsp, k_bram, shift_frac):
+        cols = [CLB] * n
+        k = k_dsp + k_bram
+        if k == 0:
+            return cols
+        # Interleave types in proportion along the hard-block sequence.
+        types, d, b = [], 0, 0
+        for i in range(k):
+            if k_dsp and (d + 1) / k_dsp <= (b + 1) / max(1, k_bram) or not k_bram:
+                types.append(DSP); d += 1
+            else:
+                types.append(BRAM); b += 1
+        taken = set()
+        for x, t in zip(positions(k, shift_frac), types):
+            c = int(round(x - 0.5)) % n
+            # nearest free column (keeps exact counts when positions collide)
+            for off in range(n):
+                for cand in (c + off, c - off):
+                    cand %= n
+                    if cand not in taken:
+                        taken.add(cand)
+                        cols[cand] = t
+                        break
+                else:
+                    continue
+                break
+        return cols
+
+    l0 = place(dsp_l0, bram_l0, 0.0)
+    l1 = place(2 * n_dsp - dsp_l0, 2 * n_bram - bram_l0, stagger)
+    return ColumnLayoutSpec(columns=[l0, l1])
+
+
+def sample_structured(trial: optuna.Trial, cfg: SearchConfig) -> ColumnLayoutSpec:
+    """Five interpretable layout parameters (see structured_columns)."""
+    n = cfg.width - 2
+    _, nd, nb = column_counts(cfg)
+    dsp_l0 = trial.suggest_int("dsp_on_l0", 0, 2 * nd)
+    bram_l0 = trial.suggest_int("bram_on_l0", 0, 2 * nb)
+    cluster = trial.suggest_float("cluster", 0.0, 1.0)
+    stagger = trial.suggest_float("stagger", 0.0, 1.0)
+    band_pos = trial.suggest_float("band_pos", 0.15, 0.85)
+    return structured_columns(n, nd, nb, dsp_l0, bram_l0, cluster, stagger, band_pos)
+
+
 def sample_connectivity(trial: optuna.Trial, cfg: SearchConfig):
     type_sb = trial.suggest_categorical("type_sb", list(cfg.type_sb_choices))
     if type_sb in ("2d", "3d_cb", "3d_cb_out_only"):
@@ -517,8 +584,8 @@ def make_objective(cfg: SearchConfig, block_types=None, study: Optional[optuna.S
         if cfg.search_mode == "connectivity":
             spec = NAMED_LAYOUTS["aligned"]
             arch_type, connectivity, connection_type, delay_ratio = sample_connectivity(trial, cfg)
-        elif cfg.search_mode == "columns":
-            spec = sample_columns(trial, cfg)
+        elif cfg.search_mode in ("columns", "structured"):
+            spec = sample_columns(trial, cfg) if cfg.search_mode == "columns" else sample_structured(trial, cfg)
             arch_type = cfg.arch_type
             connectivity = trial.suggest_categorical("connectivity", list(cfg.connectivity_choices))
             connection_type = "subset"

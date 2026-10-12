@@ -40,6 +40,9 @@ import re as _re
 STUDIES = [s for s in _re.split(r"[,\s]+", os.environ.get("STUDIES", "columns promote tpe nsga2 random")) if s]
 COLUMNS_DESIGN = os.environ.get("COLUMNS_DESIGN", "koios/eltwise_layer")
 FIDELITY = os.environ.get("FIDELITY", "place")
+# "structured" = 5 interpretable layout parameters (lazagna_optuna.sample_structured),
+# "columns" = one continuous key per column per layer.
+SEARCH_MODE = os.environ.get("SEARCH_MODE", "columns")
 TALL = os.environ.get("TALL", "1") != "0"
 TARGET_UTIL = float(os.environ.get("TARGET_UTIL", "0.8"))
 PROMOTE_TOP = int(os.environ.get("PROMOTE_TOP", "10"))
@@ -60,7 +63,7 @@ import random
 import optuna
 from lazagna_optuna import (SearchConfig, make_objective, _make_sampler, journal_storage,
                             baseline_signature, column_counts, autosize, sample_columns,
-                            reference_columns, _run_one)
+                            reference_columns, _run_one, sample_structured)
 
 # Stale-image guard: these features live inside the image (/opt/LaZagna). If Ismael reuses an
 # old lazagna.sif, fail loud instead of crashing cryptically mid-run.
@@ -105,7 +108,7 @@ def columns_cfg() -> SearchConfig:
         # cw 300 everywhere: the lab has used 300 in all prior work, so results stay
         # comparable. CW is pinned on the vpr line, so VTR never runs its own search.
         channel_width=CW, seeds=SEEDS, seed_list=SEED_LIST,
-        arch_type="combined", search_mode="columns",
+        arch_type="combined", search_mode=SEARCH_MODE,
         template_path=f"arch_files/templates/{tdir}/vtr_arch_dsp_bram.xml",
         template_2d_path=f"arch_files/templates/{tdir}/vtr_2d_arch_dsp_bram.xml",
         connectivity_choices=(1.0,),
@@ -125,7 +128,8 @@ def columns_cfg() -> SearchConfig:
 
 def columns_study_name() -> str:
     name = COLUMNS_DESIGN.split("/", 1)[1].replace(".", "_")
-    return f"columns_{name}_{'tall' if TALL else '1x1'}_{FIDELITY}" + SUFFIX
+    mode = "" if SEARCH_MODE == "columns" else f"_{SEARCH_MODE}"
+    return f"columns_{name}_{'tall' if TALL else '1x1'}_{FIDELITY}{mode}" + SUFFIX
 
 
 def sampler_cfg(sampler: str) -> SearchConfig:
@@ -245,7 +249,7 @@ def promote() -> None:
         else:
             t = by_num[c]
             ft = optuna.trial.FixedTrial(t.params)
-            spec = sample_columns(ft, cfg)
+            spec = sample_columns(ft, cfg) if SEARCH_MODE == "columns" else sample_structured(ft, cfg)
             arch_type, conn, dr = cfg.arch_type, t.params.get("connectivity", 1.0), t.params.get("delay_ratio", 0.739)
             rec.update(search_values=t.values, search_cpd=t.user_attrs.get("cpd_raw"),
                        search_wl=t.user_attrs.get("wl_raw"), pareto=t.number in {b.number for b in study.best_trials})
