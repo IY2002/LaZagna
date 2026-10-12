@@ -147,3 +147,11 @@ Entries are added during the run (date, decision, reason).
   deadline; its pre-final RQ1 result is reported as supplementary only), lenet and
   tdarknet_like.small (they fail packing/routing). The Optuna searches are not rerun (they ran
   on an earlier netlist); their top layouts are re-validated on the final flow.
+- 2026-10-12: **Root causes of the last two exclusions.** tdarknet_like.small: write-port merging
+  maps its memories to 3005 BRAMs, which forces a 455×398 2D device (181k tiles, CLB 7% used)
+  that fails routing. That is a size limit, not a flow bug. lenet: **flow bug.** The generic
+  `techmap` added on 10-11 runs after `dfflegalize` and leaves 5 `$_DFFE_PP_` cells that VPR
+  rejects. Fix: run `dfflegalize` after the final `techmap`. Deliberately deferred until the
+  final rerun has synthesized every design, because changing yosys.ys mid-run would mix
+  synthesis versions again. The included designs pack, so they contain no such cells and are
+  unaffected.
