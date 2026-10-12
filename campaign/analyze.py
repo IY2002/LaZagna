@@ -398,6 +398,99 @@ def rq3(rows, lines, plt):
     lines += ["", "![RQ3](figs/rq3_connectivity.png)", ""]
 
 
+def recommended(rows, tagged, lines, plt):
+    """Synthesis of RQ2+RQ3: gain over 2D of (a) full 3D aligned, (b) type-dedicated layers,
+    (c) recommended = type-dedicated layers + only 10% of channels crossing at every SB.
+    Also inter-layer delay sensitivity (tag delay)."""
+    rq1 = {short(r["task"]["design"]): r for r in rows.values() if r["task"]["kind"] == "rq1" and "error" not in r}
+    split = {short(r["task"]["design"]): r for r in rows.values()
+             if r["task"]["kind"] == "layout" and r["task"]["layout"] == "split_types" and "error" not in r}
+    rec = {short(r["task"]["design"]): r for r in tagged.values() if r["task"].get("tag") == "rec" and "error" not in r}
+    designs = sorted(d for d in rq1 if d in rec)
+    if designs:
+        lines += ["## Recommended 3D architecture vs 2D", "",
+                  "Gain over the equal-resource 2D device (positive = better). *aligned*: full 3D connectivity, "
+                  "evenly spread hard blocks identical on both layers. *split*: DSP on layer 0, BRAM on layer 1. "
+                  "*recommended*: split + only 10% of channels crossing at every switch block (10× fewer vertical links).", "",
+                  "| design | aligned CPD / WL % | split CPD / WL % | recommended CPD / WL % |", "|---|---|---|---|"]
+        ratios = {"aligned": ([], []), "split": ([], []), "recommended": ([], [])}
+        for d in designs:
+            two = rq1[d]["2d"]
+            cells = []
+            for name, side in (("aligned", rq1[d]["3d"]), ("split", (split.get(d) or {}).get("3d")),
+                               ("recommended", rec[d]["3d"])):
+                if not side:
+                    cells.append("–"); continue
+                (c, cci, _), (w, wci, _) = paired(two, side)
+                cells.append(f"{fmt(c, cci)} / {fmt(w, wci)}")
+                g2, g3 = common_gm(two, side)
+                if g2:
+                    ratios[name][0].append(g3[0] / g2[0]); ratios[name][1].append(g3[1] / g2[1])
+            lines.append(f"| {d} | " + " | ".join(cells) + " |")
+        lines.append("")
+        lines.append("**Geomean gain over 2D:** " + "; ".join(
+            f"{k}: CPD {gm_ratio_pct(v[0]):+.1f}%, WL {gm_ratio_pct(v[1]):+.1f}% (n={len(v[0])})"
+            for k, v in ratios.items() if v[0]))
+        lines.append("")
+        fig, ax = plt.subplots(figsize=(5.2, 2.8))
+        names = [k for k in ratios if ratios[k][0]]
+        xs = range(len(names))
+        cp = [gm_ratio_pct(ratios[k][0]) for k in names]; wl = [gm_ratio_pct(ratios[k][1]) for k in names]
+        ax.bar([x - 0.18 for x in xs], cp, width=0.34, color=BLUE, label="CPD")
+        ax.bar([x + 0.18 for x in xs], wl, width=0.34, color=ORANGE, label="Wirelength")
+        for x, a, b in zip(xs, cp, wl):
+            ax.text(x - 0.18, a, f"{a:+.1f}", ha="center", va="bottom", fontsize=8, color=INK)
+            ax.text(x + 0.18, b, f"{b:+.1f}", ha="center", va="bottom", fontsize=8, color=INK)
+        ax.set_xticks(list(xs), ["full 3D\n(aligned)", "type-dedicated\nlayers", "recommended\n(+10% links)"])
+        ax.axhline(0, color=INK2, lw=0.8)
+        ax.set_title(f"Geomean gain over 2D (%), {len(designs)} designs", loc="left")
+        ax.legend(loc="upper right", fontsize=8)
+        fig.tight_layout(); fig.savefig(os.path.join(FIGS, "recommended_vs_2d.png"), dpi=200); plt.close(fig)
+        lines += ["![recommended](figs/recommended_vs_2d.png)", ""]
+    # delay sensitivity
+    dl = {}
+    for r in tagged.values():
+        if r["task"].get("tag") == "delay" and "error" not in r:
+            kind = "recommended" if r["task"].get("vconn", 1) != 1 else "aligned"
+            dl.setdefault(short(r["task"]["design"]), {})[(kind, float(r["task"]["delay"]))] = r
+    for d in list(dl):
+        if d in rq1:
+            dl[d][("aligned", 0.739)] = {"3d": rq1[d]["3d"]}
+            if d in rec:
+                dl[d][("recommended", 0.739)] = {"3d": rec[d]["3d"]}
+    dd = sorted(d for d in dl if d in rq1)
+    if dd:
+        lines += ["## Sensitivity to inter-layer delay", "",
+                  "Gain over 2D vs the inter-layer delay ratio (vertical-link delay relative to an L4 wire driver; "
+                  "0.739 = default).", "",
+                  "| design | config | " + " | ".join(f"d={x:g}" for x in (0.3, 0.739, 1.5, 3.0)) + " |",
+                  "|---|---|" + "---|" * 4]
+        agg = {}
+        for d in dd:
+            for kind in ("aligned", "recommended"):
+                cells = []
+                for x in (0.3, 0.739, 1.5, 3.0):
+                    r = dl[d].get((kind, x))
+                    if not r:
+                        cells.append("–"); continue
+                    (c, cci, _), (w, wci, _) = paired(rq1[d]["2d"], r["3d"])
+                    cells.append(f"{c:+.1f} / {w:+.1f}")
+                    agg.setdefault((kind, x), []).append((c, w))
+                lines.append(f"| {d} | {kind} | " + " | ".join(cells) + " |")
+        lines += ["", "(cells: CPD / WL gain % over 2D)", ""]
+        fig, axes = plt.subplots(1, 2, figsize=(9, 3))
+        for kind, col, ls in (("aligned", BLUE, "-"), ("recommended", ORANGE, "--")):
+            xs = [x for x in (0.3, 0.739, 1.5, 3.0) if (kind, x) in agg]
+            for ax, j in ((axes[0], 0), (axes[1], 1)):
+                ax.plot(xs, [sum(q[j] for q in agg[(kind, x)]) / len(agg[(kind, x)]) for x in xs],
+                        color=col, ls=ls, marker="o", lw=2, label=kind)
+        for ax, t in ((axes[0], "CPD gain over 2D (%)"), (axes[1], "WL gain over 2D (%)")):
+            ax.axhline(0, color=INK2, lw=0.8); ax.set_xlabel("inter-layer delay ratio"); ax.set_title(t, loc="left")
+        axes[1].legend(fontsize=8)
+        fig.tight_layout(); fig.savefig(os.path.join(FIGS, "delay_sensitivity.png"), dpi=200); plt.close(fig)
+        lines += [f"![delay](figs/delay_sensitivity.png)", f"(mean over {len(dd)} designs)", ""]
+
+
 if __name__ == "__main__":
     os.makedirs(FIGS, exist_ok=True)
     rows = load()
@@ -409,6 +502,7 @@ if __name__ == "__main__":
     rq2(rows, lines, plt)
     rq3(rows, lines, plt)
     confirm(load_tagged(), rows, lines)
+    recommended(rows, load_tagged(), lines, plt)
     # Optuna top layouts re-run at 5 seeds vs the aligned reference (RQ1 3D side, same seeds)
     cust = [r for r in rows.values() if r["task"]["kind"] == "custom" and "error" not in r]
     if cust:
