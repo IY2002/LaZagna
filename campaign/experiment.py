@@ -17,6 +17,9 @@
 #   layout   (layout) name in LAYOUTS
 #   conn     (conn) fraction of switch blocks that are 3D (percent_connectivity)
 #   vconn    (conn) fraction of channels per 3D switch block that cross layers
+#   loc      (conn) 3D switch-block location pattern: repeated_interval (default), core,
+#            perimeter, rows, columns
+#   tag      optional label (e.g. "s10"): tagged runs are analyzed separately
 #   jobs     parallel VPR runs (default = seeds)
 # env: TASKS (path), TASK_INDEX (array index), WORK (/work), TALL (1), CW (300)
 import json
@@ -95,6 +98,10 @@ def named_layout(name: str, cfg: SearchConfig) -> ColumnLayoutSpec:
         return ColumnLayoutSpec([spread(n, 2 * nd, 2 * nb), [CLB] * n])
     if name == "split_types":      # DSP on layer 0, BRAM on layer 1
         return ColumnLayoutSpec([spread(n, 2 * nd, 0), spread(n, 0, 2 * nb)])
+    if name == "split_rev":        # BRAM on layer 0, DSP on layer 1 (layer-order control)
+        return ColumnLayoutSpec([spread(n, 0, 2 * nb), spread(n, 2 * nd, 0)])
+    if name == "hb_top":           # all hard blocks on layer 1 (layer-order control)
+        return ColumnLayoutSpec([[CLB] * n, spread(n, 2 * nd, 2 * nb)])
     if name == "center":           # hard blocks clustered in the middle, both layers
         c = block(n, nd, nb, "center")
         return ColumnLayoutSpec([c, list(c)])
@@ -106,7 +113,8 @@ def named_layout(name: str, cfg: SearchConfig) -> ColumnLayoutSpec:
     raise ValueError(f"unknown layout {name}")
 
 
-LAYOUTS = ("aligned", "staggered", "hb_one_layer", "split_types", "center", "edges", "center_edges")
+LAYOUTS = ("aligned", "staggered", "hb_one_layer", "split_types", "center", "edges", "center_edges",
+           "split_rev", "hb_top")
 
 
 def stage(entry: str) -> str:
@@ -136,11 +144,11 @@ def run(task: dict) -> dict:
            "cols_per_layer": column_counts(cfg), "seeds": list(cfg.seed_list)}
     tag = task["id"].replace("/", "_").replace(".", "")
 
-    def go(label, spec, arch_type, conn=1.0, vconn=1.0):
+    def go(label, spec, arch_type, conn=1.0, vconn=1.0, loc="repeated_interval"):
         info = {}
         t0 = time.time()
         m, err = _run_one(cfg, spec, f"{tag}{label}", arch_type, conn, 0.739, info=info,
-                          fidelity="route", vertical_connectivity=vconn)
+                          fidelity="route", vertical_connectivity=vconn, sb_location=loc)
         out = {"cpd": m[0] if m else None, "wl": m[1] if m else None, "error": err,
                "per_seed": info.get("per_seed"), "t_s": round(time.time() - t0)}
         if spec is not None:
@@ -165,9 +173,10 @@ def run(task: dict) -> dict:
             spec = ColumnLayoutSpec(task["columns"])
         rec["3d"] = go("cust", spec, cfg.arch_type)
     elif kind == "conn":
-        rec["3d"] = go(f"c{task['conn']}v{task.get('vconn', 1)}".replace(".", ""),
+        loc = task.get("loc", "repeated_interval")
+        rec["3d"] = go(f"c{task['conn']}v{task.get('vconn', 1)}{loc[:4]}".replace(".", ""),
                        reference_columns(cfg), cfg.arch_type,
-                       conn=float(task["conn"]), vconn=float(task.get("vconn", 1)))
+                       conn=float(task["conn"]), vconn=float(task.get("vconn", 1)), loc=loc)
     else:
         raise ValueError(kind)
     return rec

@@ -292,7 +292,8 @@ def sample_connectivity(trial: optuna.Trial, cfg: SearchConfig):
 
 def _experiment_options(cfg: SearchConfig, exp_name: str, arch_type: str, connectivity: float,
                         delay_ratio: float, connection_type: str = "subset",
-                        vertical_connectivity: float = 1) -> ExperimentOptions:
+                        vertical_connectivity: float = 1,
+                        sb_location: str = "repeated_interval") -> ExperimentOptions:
     opts = ExperimentOptions(
         experiment_name=exp_name,
         grid=GridOptions(width_3d=cfg.width, height_3d=cfg.height,
@@ -302,7 +303,8 @@ def _experiment_options(cfg: SearchConfig, exp_name: str, arch_type: str, connec
         placement=PlacementOptions(algorithm=["cube_bb"]),
         seeds=SeedOptions.from_list(seed_values(cfg)),
         switch_block_3d=SwitchBlock3DOptions(connectivity=[connectivity],
-                                             connection_type=[connection_type]),
+                                             connection_type=[connection_type],
+                                             location_pattern=[sb_location]),
         interlayer_delay=InterlayerDelayOptions(delay_ratio=[delay_ratio],
                                                 vertical_connectivity=vertical_connectivity),
         advanced=AdvancedOptions(vpr_only=True),
@@ -408,7 +410,7 @@ def autosize(cfg: SearchConfig) -> tuple[SearchConfig, dict]:
 def _run_one(cfg: SearchConfig, spec_or_none, exp_name: str, arch_type: str,
              connectivity: float, delay_ratio: float, connection_type: str = "subset",
              info: Optional[dict] = None, fidelity: Optional[str] = None,
-             vertical_connectivity: float = 1):
+             vertical_connectivity: float = 1, sb_location: str = "repeated_interval"):
     """Run one architecture over all seeds. Returns ((cpd, wl), None) or (None, error).
     `info`, if given, is filled with per-seed details (placement estimates and routed values)."""
     is_2d = arch_type == "2d"
@@ -420,7 +422,7 @@ def _run_one(cfg: SearchConfig, spec_or_none, exp_name: str, arch_type: str,
     arch_h = cfg.height_2d if is_2d else cfg.height
     arch = build_architecture(spec, arch_w, arch_h, _template(cfg, is_2d), layers=1 if is_2d else 2)
     opts = _experiment_options(cfg, exp_name, arch_type, connectivity, delay_ratio, connection_type,
-                               vertical_connectivity)
+                               vertical_connectivity, sb_location)
 
     if cfg.fast_flow:
         from lazagna_fastflow import evaluate

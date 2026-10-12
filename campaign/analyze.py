@@ -26,11 +26,67 @@ T95 = {1: 12.71, 2: 4.30, 3: 3.18, 4: 2.78, 5: 2.57, 6: 2.45, 7: 2.36, 8: 2.31, 
 
 
 def load():
+    """Untagged results only; tagged runs (e.g. 10-seed confirmations) are in load_tagged()."""
     rows = {}
     for f in glob.glob(os.path.join(WORK, "results", "*.json")):
         r = json.load(open(f))
-        rows[r["task"]["id"]] = r
+        if not r["task"].get("tag") and r["task"].get("loc", "repeated_interval") == "repeated_interval":
+            rows[r["task"]["id"]] = r
     return rows
+
+
+def load_tagged():
+    rows = {}
+    for f in glob.glob(os.path.join(WORK, "results", "*.json")):
+        r = json.load(open(f))
+        if r["task"].get("tag") or r["task"].get("loc", "repeated_interval") != "repeated_interval":
+            rows[r["task"]["id"]] = r
+    return rows
+
+
+def confirm(tagged, untagged, lines):
+    """10-seed confirmations (tag s10): each layout vs aligned at 10 seeds, and location patterns."""
+    by = {}
+    for r in tagged.values():
+        if r["task"].get("tag") == "s10" and r["task"]["kind"] == "layout" and "error" not in r:
+            by.setdefault(short(r["task"]["design"]), {})[r["task"]["layout"]] = r
+    designs = sorted(d for d in by if "aligned" in by[d])
+    if designs:
+        lays = sorted({L for d in designs for L in by[d] if L != "aligned"})
+        lines += ["## RQ2 confirmation (10 paired seeds)", "",
+                  "| design | layout | CPD gain % vs aligned | WL gain % vs aligned | seeds |", "|---|---|---|---|---|"]
+        for d in designs:
+            for L in lays:
+                if L in by[d]:
+                    (c, cci, n), (w, wci, _) = paired(by[d]["aligned"].get("3d"), by[d][L].get("3d"))
+                    lines.append(f"| {d} | {L} | {fmt(c, cci)} | {fmt(w, wci)} | {n} |")
+        lines.append("")
+    loc = {}
+    for r in tagged.values():
+        if r["task"]["kind"] == "conn" and r["task"].get("loc", "repeated_interval") != "repeated_interval" and "error" not in r:
+            loc.setdefault(short(r["task"]["design"]), {})[(r["task"]["loc"], float(r["task"]["conn"]))] = r
+    if loc:
+        full = {short(r["task"]["design"]): r for r in untagged.values() if r["task"]["kind"] == "rq1" and "error" not in r}
+        ri = {}
+        for r in untagged.values():
+            if r["task"]["kind"] == "conn" and float(r["task"].get("vconn", 1)) == 1.0 and "error" not in r:
+                ri[(short(r["task"]["design"]), float(r["task"]["conn"]))] = r
+        lines += ["## RQ3: where to put the 3D switch blocks (fixed budget)", "",
+                  "Change vs full connectivity. repeated_interval = evenly interleaved (the default).", "",
+                  "| design | p | pattern | CPD vs full % | WL vs full % |", "|---|---|---|---|---|"]
+        for d in sorted(loc):
+            if d not in full:
+                continue
+            ps = sorted({p for (_, p) in loc[d]})
+            for p_ in ps:
+                if (d, p_) in ri:
+                    (c, cci, _), (w, wci, _) = paired(full[d]["3d"], ri[(d, p_)]["3d"])
+                    lines.append(f"| {d} | {p_:g} | repeated_interval | {fmt(c, cci)} | {fmt(w, wci)} |")
+                for (L, pp), r in sorted(loc[d].items()):
+                    if pp == p_:
+                        (c, cci, _), (w, wci, _) = paired(full[d]["3d"], r["3d"])
+                        lines.append(f"| {d} | {p_:g} | {L} | {fmt(c, cci)} | {fmt(w, wci)} |")
+        lines.append("")
 
 
 def per_seed(side):
@@ -352,6 +408,7 @@ if __name__ == "__main__":
     rq1(rows, lines, plt)
     rq2(rows, lines, plt)
     rq3(rows, lines, plt)
+    confirm(load_tagged(), rows, lines)
     if failed:
         lines += ["## Failed runs", ""] + [f"- {t}: {(rows[t].get('error') or (rows[t].get('3d') or {}).get('error') or (rows[t].get('2d') or {}).get('error'))[:160]}" for t in sorted(failed)] + [""]
     open(os.path.join(OUT, "tables.md"), "w").write("\n".join(lines))
