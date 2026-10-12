@@ -136,5 +136,14 @@ Entries are added during the run (date, decision, reason).
   seeds 1–5) to remove selection bias from the search.
 - 2026-10-11: **Generic `techmap` before `simplemap`.** `$pmux` cells created by passes after the
   earlier techmap reached the BLIF unmapped (mcml, lenet, tdarknet), and OpenFPGA's
-  post-synthesis step crashed on them. For every design that packed before, the BLIF had no
-  leftover `$` cells, so this is expected to be a no-op for them (being verified by diffing BLIFs).
+  post-synthesis step crashed on them. **Verified NOT a no-op:** packed CLB counts moved slightly
+  for some designs (conv_layer +11, eltwise −5, attention −1; about 0.5%), and BLIF net
+  naming changed for most. Because VPR placement depends on netlist order, results across
+  synthesis versions are not strictly paired.
+- 2026-10-12: **Final results rerun on one synthesis version.** All batch-1–4, validation and
+  blocked-design experiments (279 tasks) are rerun on the final flow (synthesis key 725a3915)
+  into `campaign_work/study/results/`. The earlier mixed-version results are archived in
+  `results_prefinal/`. Excluded from the final set: gemm_layer (≈7 h per task, doesn't fit the
+  deadline; its pre-final RQ1 result is reported as supplementary only), lenet and
+  tdarknet_like.small (they fail packing/routing). The Optuna searches are not rerun (they ran
+  on an earlier netlist); their top layouts are re-validated on the final flow.
