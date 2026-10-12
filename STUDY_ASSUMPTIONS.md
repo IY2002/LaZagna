@@ -134,3 +134,7 @@ Entries are added during the run (date, decision, reason).
 - 2026-10-11: **Optuna validation:** the top 3 structured layouts per design (by CPD gain + WL
   gain at 3 seeds) are re-run at 5 seeds against the aligned reference (the RQ1 3D run, same
   seeds 1–5) to remove selection bias from the search.
+- 2026-10-11: **Generic `techmap` before `simplemap`.** `$pmux` cells created by passes after the
+  earlier techmap reached the BLIF unmapped (mcml, lenet, tdarknet), and OpenFPGA's
+  post-synthesis step crashed on them. For every design that packed before, the BLIF had no
+  leftover `$` cells, so this is expected to be a no-op for them (being verified by diffing BLIFs).
