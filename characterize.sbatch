@@ -16,8 +16,8 @@
 #SBATCH --mem=64G
 #SBATCH -q inferno
 #SBATCH --time=08:00:00
-#SBATCH --output=characterize_%A_%a.out
-#SBATCH --error=characterize_%A_%a.err
+#SBATCH --output=logs/characterize/characterize_%A_%a.out
+#SBATCH --error=logs/characterize/characterize_%A_%a.err
 set -u
 
 module load apptainer 2>/dev/null || true

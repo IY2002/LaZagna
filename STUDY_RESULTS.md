@@ -163,9 +163,9 @@ timing advantage depends on vertical links being no slower than about 1.5× an L
 ```bash
 # characterization (synthesis + pack, all candidates)
 CHARACTERIZE=1 bash submit_campaign.sh
-# fixed-configuration experiments (task list = campaign_work/study/tasks_final.jsonl)
+# fixed-configuration experiments (task list = campaign_work/study/tasks/tasks_final.jsonl)
 sbatch -A <acct> --array=0-278%28 \
-  --export=ALL,WORK_ROOT=$PWD/campaign_work/study,TASKS=$PWD/campaign_work/study/tasks_final.jsonl \
+  --export=ALL,WORK_ROOT=$PWD/campaign_work/study,TASKS=$PWD/campaign_work/study/tasks/tasks_final.jsonl \
   experiment.sbatch
 # analysis (host, needs matplotlib)
 python3 campaign/analyze.py campaign_work/study docs/study

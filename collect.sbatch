@@ -11,8 +11,8 @@
 #SBATCH --mem=8G
 #SBATCH -q inferno
 #SBATCH --time=01:00:00
-#SBATCH --output=collect_%j.out
-#SBATCH --error=collect_%j.err
+#SBATCH --output=logs/collect/collect_%j.out
+#SBATCH --error=logs/collect/collect_%j.err
 set -u
 
 module load apptainer 2>/dev/null || true

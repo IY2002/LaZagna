@@ -14,8 +14,8 @@
 #SBATCH --mem=64G
 #SBATCH -q inferno
 #SBATCH --time=16:00:00
-#SBATCH --output=extras_%j.out
-#SBATCH --error=extras_%j.err
+#SBATCH --output=logs/extras/extras_%j.out
+#SBATCH --error=logs/extras/extras_%j.err
 set -u
 
 module load apptainer 2>/dev/null || true

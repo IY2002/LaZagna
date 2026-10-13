@@ -13,8 +13,8 @@
 ##SBATCH -A gts-CHANGEME          # DISABLED: submit_campaign.sh passes -A; or drop one '#' to hardcode
 #SBATCH -q inferno                # charged, 21-day wall (embers = free, 8h; build fits in 8h too)
 #SBATCH --time=03:00:00           # build is ~1 h; margin for a slow node
-#SBATCH --output=build_%j.out
-#SBATCH --error=build_%j.err
+#SBATCH --output=logs/build/build_%j.out
+#SBATCH --error=logs/build/build_%j.err
 # ============================================================================
 set -u
 

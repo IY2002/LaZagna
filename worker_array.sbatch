@@ -17,8 +17,8 @@
 #SBATCH --mem=64G   # 3D RRG generation peaks ~19 GB plus multi-GB file cache (32G -> intermittent kills)
 #SBATCH -q inferno
 #SBATCH --time=16:00:00
-#SBATCH --output=worker_%A_%a.out
-#SBATCH --error=worker_%A_%a.err
+#SBATCH --output=logs/worker/worker_%A_%a.out
+#SBATCH --error=logs/worker/worker_%A_%a.err
 set -u
 
 module load apptainer 2>/dev/null || true   # PACE: apptainer may already be on PATH

@@ -32,6 +32,9 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 HERE="$PWD"
+# SLURM logs go to logs/<job-type>/ (set in each *.sbatch). SLURM does not create missing
+# directories, and a job whose log path does not exist fails at start, so make sure they exist.
+mkdir -p logs/{build,worker,extras,collect,characterize,exp,script,fftest,campaign,archive}
 
 QUEUE="${QUEUE:-inferno}"
 N_WORKERS="${N_WORKERS:-16}"
@@ -90,7 +93,7 @@ if [ -n "${CHARACTERIZE:-}" ]; then
   echo "  summary job:            $SUMID"
   echo
   echo "Submitted. Watch with:  squeue -u $USER"
-  echo "Table prints to         characterize_${SUMID}_0.out"
+  echo "Table prints to         logs/characterize/characterize_${SUMID}_0.out"
   exit 0
 fi
 
@@ -165,4 +168,4 @@ echo "  collect job:  $CID (runs after workers + extras)"
 echo
 echo "Submitted. Watch with:  squeue -u $USER"
 echo "Summary lands in:       $WORK_ROOT/campaign_summary.md"
-echo "Study progress:         grep complete worker_*.out | tail"
+echo "Study progress:         grep complete logs/worker/worker_*.out | tail"

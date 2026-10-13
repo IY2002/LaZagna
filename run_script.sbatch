@@ -8,8 +8,8 @@
 #SBATCH --mem=8G
 #SBATCH -q inferno
 #SBATCH --time=00:30:00
-#SBATCH --output=script_%j.out
-#SBATCH --error=script_%j.err
+#SBATCH --output=logs/script/script_%j.out
+#SBATCH --error=logs/script/script_%j.err
 set -u
 module load apptainer 2>/dev/null || true
 CAMPAIGN="${CAMPAIGN:-$SLURM_SUBMIT_DIR}"

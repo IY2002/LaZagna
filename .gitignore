@@ -129,3 +129,10 @@ exp_*.out
 exp_*.err
 script_*.out
 script_*.err
+
+# SLURM logs: every *.sbatch writes to logs/<job-type>/. The directories themselves are kept
+# (via .gitkeep) because SLURM refuses to start a job whose log directory is missing.
+logs/**
+!logs/*/
+!logs/*/.gitkeep
+!logs/README.md

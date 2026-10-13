@@ -8,8 +8,8 @@
 #SBATCH --mem=48G
 #SBATCH -q inferno
 #SBATCH --time=04:00:00
-#SBATCH --output=fftest_%j.out
-#SBATCH --error=fftest_%j.err
+#SBATCH --output=logs/fftest/fftest_%j.out
+#SBATCH --error=logs/fftest/fftest_%j.err
 set -u
 module load apptainer 2>/dev/null || true
 command -v apptainer >/dev/null || { echo "FATAL: apptainer not found"; exit 1; }
