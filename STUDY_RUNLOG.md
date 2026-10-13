@@ -27,16 +27,13 @@ Read at every loop iteration. Update "State" and "Next" before ending each itera
 - **E. Write-up:** STUDY_RESULTS.md with tables, figures (PNG), and insights for each RQ;
   limitations; reproduce commands.
 
-## State (2026-10-12 12:40)
-- The loop stalled from ~22:50 to 12:20 (scheduled wakeups did not fire). All earlier jobs had finished.
-- BLIF check: the techmap fix changed netlists slightly (~0.5% CLB on some designs) → the
-  earlier results mix synthesis versions. FINAL RERUN = job 13978112 (279 tasks, %28, longest
-  first) into campaign_work/study/results/. Old results are in results_prefinal/.
-- Excluded from the final set: gemm (7 h/task), lenet (flow bug, fix deferred; 6.7 h P&R),
-  tdarknet (455×398 device).
+## State (2026-10-12 20:45): FINAL
+- The final rerun (13978112, 279 tasks) completed with 0 failures. STUDY_RESULTS.md is written
+  from the final tables (docs/study/tables.md, figs in docs/study/figs).
+- The loop stalled twice (22:50 to 12:20, and 12:44 to 20:30): scheduled wakeups did not fire.
+  The write-up landed after the 16:45 deadline.
+- lenet fix applied to yosys.ys after the final run (untested).
 
-## Next
-- DO NOT edit task/designs/* until every design in the final rerun has prepped (synthesis
-  cache key). After the rerun completes: apply the lenet dfflegalize-order fix and commit.
-- As results land: analyze.py → rewrite STUDY_RESULTS.md from the final tables (paper-ready).
-- Deadline 16:45.
+## Not done / follow-ups
+- Test the lenet fix; run lenet and gemm_layer (long P&R) for RQ1.
+- The Optuna searches ran on an earlier synthesis version (the validation re-runs are on the final flow).

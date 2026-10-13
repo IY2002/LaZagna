@@ -155,3 +155,7 @@ Entries are added during the run (date, decision, reason).
   final rerun has synthesized every design, because changing yosys.ys mid-run would mix
   synthesis versions again. The included designs pack, so they contain no such cells and are
   unaffected.
+- 2026-10-12 20:45: **lenet flow fix applied after the final run:** `dfflegalize` moved after the
+  generic `techmap`. This changes the synthesis cache key, so future runs re-synthesize. It
+  has not been tested (no compute left before the write-up), and the final results were
+  produced with the previous script (key 725a3915).
