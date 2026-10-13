@@ -1,0 +1,260 @@
+{
+ "task": {
+  "id": "rq1__robot_rl",
+  "kind": "rq1",
+  "design": "koios/robot_rl",
+  "seeds": 5
+ },
+ "sizing": {
+  "width_2d": 62,
+  "height_2d": 50,
+  "width": 42,
+  "height": 38,
+  "tiles_2d": 2880,
+  "tiles_3d": 2880,
+  "cap_2d": {
+   "clb": 2112,
+   "complex_dsp": 96,
+   "spram": 64,
+   "io": 1728
+  },
+  "cap_3d": {
+   "clb": 2160,
+   "complex_dsp": 90,
+   "spram": 60,
+   "io": 2432
+  },
+  "demand": {
+   "io": 387,
+   "clb": 1573,
+   "complex_dsp": 18,
+   "spram": 48
+  },
+  "target_util": 0.8
+ },
+ "cols_per_layer": [
+  30,
+  5,
+  5
+ ],
+ "seeds": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "2d": {
+  "cpd": 1.1793253927696295e-08,
+  "wl": 194510.74321367333,
+  "error": null,
+  "per_seed": [
+   {
+    "succeeded": true,
+    "place_cpd": 1.16047e-08,
+    "place_wl": 144460.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 1.1478600000000001e-08,
+    "route_wl": 192980.0,
+    "seed": 1,
+    "rc": 0,
+    "error": null
+   },
+   {
+    "succeeded": true,
+    "place_cpd": 1.1716e-08,
+    "place_wl": 154853.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 1.20514e-08,
+    "route_wl": 203711.0,
+    "seed": 2,
+    "rc": 0,
+    "error": null
+   },
+   {
+    "succeeded": true,
+    "place_cpd": 1.16721e-08,
+    "place_wl": 140846.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 1.1857900000000002e-08,
+    "route_wl": 189547.0,
+    "seed": 3,
+    "rc": 0,
+    "error": null
+   },
+   {
+    "succeeded": true,
+    "place_cpd": 1.1512800000000001e-08,
+    "place_wl": 141150.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 1.1679700000000001e-08,
+    "route_wl": 188699.0,
+    "seed": 4,
+    "rc": 0,
+    "error": null
+   },
+   {
+    "succeeded": true,
+    "place_cpd": 1.13081e-08,
+    "place_wl": 150300.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 1.1907e-08,
+    "route_wl": 198018.0,
+    "seed": 5,
+    "rc": 0,
+    "error": null
+   }
+  ],
+  "t_s": 61
+ },
+ "3d": {
+  "cpd": 1.1506205708304888e-08,
+  "wl": 185866.87220644145,
+  "error": null,
+  "per_seed": [
+   {
+    "succeeded": true,
+    "place_cpd": 1.13645e-08,
+    "place_wl": 132117.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 1.1664400000000001e-08,
+    "route_wl": 187685.0,
+    "seed": 1,
+    "rc": 0,
+    "error": null
+   },
+   {
+    "succeeded": true,
+    "place_cpd": 1.16047e-08,
+    "place_wl": 130549.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 1.16166e-08,
+    "route_wl": 186748.0,
+    "seed": 2,
+    "rc": 0,
+    "error": null
+   },
+   {
+    "succeeded": true,
+    "place_cpd": 1.1203400000000001e-08,
+    "place_wl": 131725.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 1.15674e-08,
+    "route_wl": 183762.0,
+    "seed": 3,
+    "rc": 0,
+    "error": null
+   },
+   {
+    "succeeded": true,
+    "place_cpd": 1.11306e-08,
+    "place_wl": 131437.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 1.1202200000000001e-08,
+    "route_wl": 183605.0,
+    "seed": 4,
+    "rc": 0,
+    "error": null
+   },
+   {
+    "succeeded": true,
+    "place_cpd": 1.11545e-08,
+    "place_wl": 134743.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 1.14863e-08,
+    "route_wl": 187579.0,
+    "seed": 5,
+    "rc": 0,
+    "error": null
+   }
+  ],
+  "t_s": 111,
+  "columns": [
+   [
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "clb"
+   ],
+   [
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "clb"
+   ]
+  ]
+ },
+ "t_total_s": 172
+}

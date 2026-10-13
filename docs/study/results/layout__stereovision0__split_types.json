@@ -1,0 +1,182 @@
+{
+ "task": {
+  "id": "layout__stereovision0__split_types",
+  "kind": "layout",
+  "design": "vtr/stereovision0",
+  "layout": "split_types",
+  "seeds": 5
+ },
+ "sizing": {
+  "width_2d": 50,
+  "height_2d": 50,
+  "width": 34,
+  "height": 38,
+  "tiles_2d": 2304,
+  "tiles_3d": 2304,
+  "cap_2d": {
+   "clb": 1728,
+   "complex_dsp": 72,
+   "spram": 48,
+   "io": 1536
+  },
+  "cap_3d": {
+   "clb": 1728,
+   "complex_dsp": 72,
+   "spram": 48,
+   "io": 2176
+  },
+  "demand": {
+   "io": 366,
+   "clb": 1368,
+   "complex_dsp": 0,
+   "spram": 0
+  },
+  "target_util": 0.8
+ },
+ "cols_per_layer": [
+  24,
+  4,
+  4
+ ],
+ "seeds": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "3d": {
+  "cpd": 4.183385002059396e-09,
+  "wl": 75505.79567974467,
+  "error": null,
+  "per_seed": [
+   {
+    "succeeded": true,
+    "place_cpd": 4.31067e-09,
+    "place_wl": 53120.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 4.04675e-09,
+    "route_wl": 75886.0,
+    "seed": 1,
+    "rc": 0,
+    "error": null
+   },
+   {
+    "succeeded": true,
+    "place_cpd": 4.22987e-09,
+    "place_wl": 53122.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 4.04675e-09,
+    "route_wl": 76019.0,
+    "seed": 2,
+    "rc": 0,
+    "error": null
+   },
+   {
+    "succeeded": true,
+    "place_cpd": 4.34256e-09,
+    "place_wl": 50895.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 4.5557299999999995e-09,
+    "route_wl": 72722.0,
+    "seed": 3,
+    "rc": 0,
+    "error": null
+   },
+   {
+    "succeeded": true,
+    "place_cpd": 4.31601e-09,
+    "place_wl": 53291.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 4.2438700000000006e-09,
+    "route_wl": 76584.0,
+    "seed": 4,
+    "rc": 0,
+    "error": null
+   },
+   {
+    "succeeded": true,
+    "place_cpd": 4.3675499999999995e-09,
+    "place_wl": 53439.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 4.04675e-09,
+    "route_wl": 76386.0,
+    "seed": 5,
+    "rc": 0,
+    "error": null
+   }
+  ],
+  "t_s": 85,
+  "columns": [
+   [
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb"
+   ],
+   [
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb"
+   ]
+  ]
+ },
+ "t_total_s": 85
+}

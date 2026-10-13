@@ -1,0 +1,279 @@
+{"id": "rq1__clstm_like.small", "kind": "rq1", "design": "koios/clstm_like.small", "seeds": 5, "jobs": 2, "timeout_s": 39600}
+{"id": "rec__clstm_like.small", "kind": "layout", "design": "koios/clstm_like.small", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "seeds": 5, "tag": "rec", "jobs": 2, "timeout_s": 39600}
+{"id": "layout__clstm_like.small__split_types", "kind": "layout", "design": "koios/clstm_like.small", "layout": "split_types", "seeds": 5, "jobs": 2, "timeout_s": 39600}
+{"id": "rq1__mcml", "kind": "rq1", "design": "vtr/mcml", "seeds": 5, "jobs": 2, "timeout_s": 39600}
+{"id": "rec__mcml", "kind": "layout", "design": "vtr/mcml", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "seeds": 5, "tag": "rec", "jobs": 3, "timeout_s": 36000}
+{"id": "layout__mcml__split_types", "kind": "layout", "design": "vtr/mcml", "layout": "split_types", "seeds": 5, "jobs": 3, "timeout_s": 36000}
+{"id": "rq1__LU32PEEng", "kind": "rq1", "design": "vtr/LU32PEEng", "seeds": 5, "jobs": 3, "timeout_s": 36000}
+{"id": "layout__LU32PEEng__split_types", "kind": "layout", "design": "vtr/LU32PEEng", "layout": "split_types", "seeds": 5, "jobs": 2, "timeout_s": 39600}
+{"id": "rec__LU32PEEng", "kind": "layout", "design": "vtr/LU32PEEng", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "seeds": 5, "tag": "rec", "jobs": 2, "timeout_s": 39600}
+{"id": "rq1__dla_like.small", "kind": "rq1", "design": "koios/dla_like.small", "seeds": 5, "jobs": 3, "timeout_s": 36000}
+{"id": "layout__dla_like.small__split_types", "kind": "layout", "design": "koios/dla_like.small", "layout": "split_types", "seeds": 5, "jobs": 2, "timeout_s": 39600}
+{"id": "rec__dla_like.small", "kind": "layout", "design": "koios/dla_like.small", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "seeds": 5, "tag": "rec", "jobs": 2, "timeout_s": 39600}
+{"id": "rq1__bwave_like.fixed.small", "kind": "rq1", "design": "koios/bwave_like.fixed.small", "seeds": 5, "jobs": 3, "timeout_s": 36000}
+{"id": "layout__bwave_like.fixed.small__split_types", "kind": "layout", "design": "koios/bwave_like.fixed.small", "layout": "split_types", "seeds": 5, "jobs": 2, "timeout_s": 39600}
+{"id": "rec__bwave_like.fixed.small", "kind": "layout", "design": "koios/bwave_like.fixed.small", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "seeds": 5, "tag": "rec", "jobs": 2, "timeout_s": 39600}
+{"id": "rq1__spmv", "kind": "rq1", "design": "koios/spmv", "seeds": 5, "jobs": 3, "timeout_s": 36000}
+{"id": "layout__spmv__split_types", "kind": "layout", "design": "koios/spmv", "layout": "split_types", "seeds": 5, "jobs": 2, "timeout_s": 39600}
+{"id": "rec__spmv", "kind": "layout", "design": "koios/spmv", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "seeds": 5, "tag": "rec", "jobs": 2, "timeout_s": 39600}
+{"id": "delay__spmv__aligned_d0.3", "kind": "layout", "design": "koios/spmv", "layout": "aligned", "delay": 0.3, "seeds": 5, "tag": "delay", "jobs": 2, "timeout_s": 39600}
+{"id": "delay__spmv__rec_d0.3", "kind": "layout", "design": "koios/spmv", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "delay": 0.3, "seeds": 5, "tag": "delay", "jobs": 2, "timeout_s": 39600}
+{"id": "delay__spmv__aligned_d1.5", "kind": "layout", "design": "koios/spmv", "layout": "aligned", "delay": 1.5, "seeds": 5, "tag": "delay", "jobs": 2, "timeout_s": 39600}
+{"id": "delay__spmv__rec_d1.5", "kind": "layout", "design": "koios/spmv", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "delay": 1.5, "seeds": 5, "tag": "delay", "jobs": 2, "timeout_s": 39600}
+{"id": "delay__spmv__aligned_d3.0", "kind": "layout", "design": "koios/spmv", "layout": "aligned", "delay": 3.0, "seeds": 5, "tag": "delay", "jobs": 2, "timeout_s": 39600}
+{"id": "delay__spmv__rec_d3.0", "kind": "layout", "design": "koios/spmv", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "delay": 3.0, "seeds": 5, "tag": "delay", "jobs": 2, "timeout_s": 39600}
+{"id": "layout__tpu_like.small.os__aligned", "kind": "layout", "design": "koios/tpu_like.small.os", "layout": "aligned", "seeds": 5}
+{"id": "layout__tpu_like.small.os__staggered", "kind": "layout", "design": "koios/tpu_like.small.os", "layout": "staggered", "seeds": 5}
+{"id": "layout__tpu_like.small.os__hb_one_layer", "kind": "layout", "design": "koios/tpu_like.small.os", "layout": "hb_one_layer", "seeds": 5}
+{"id": "layout__tpu_like.small.os__split_types", "kind": "layout", "design": "koios/tpu_like.small.os", "layout": "split_types", "seeds": 5}
+{"id": "layout__tpu_like.small.os__center", "kind": "layout", "design": "koios/tpu_like.small.os", "layout": "center", "seeds": 5}
+{"id": "layout__tpu_like.small.os__edges", "kind": "layout", "design": "koios/tpu_like.small.os", "layout": "edges", "seeds": 5}
+{"id": "layout__tpu_like.small.os__center_edges", "kind": "layout", "design": "koios/tpu_like.small.os", "layout": "center_edges", "seeds": 5}
+{"id": "layout__attention_layer__aligned", "kind": "layout", "design": "koios/attention_layer", "layout": "aligned", "seeds": 5}
+{"id": "layout__attention_layer__staggered", "kind": "layout", "design": "koios/attention_layer", "layout": "staggered", "seeds": 5}
+{"id": "layout__attention_layer__hb_one_layer", "kind": "layout", "design": "koios/attention_layer", "layout": "hb_one_layer", "seeds": 5}
+{"id": "layout__attention_layer__split_types", "kind": "layout", "design": "koios/attention_layer", "layout": "split_types", "seeds": 5}
+{"id": "layout__attention_layer__center", "kind": "layout", "design": "koios/attention_layer", "layout": "center", "seeds": 5}
+{"id": "layout__attention_layer__edges", "kind": "layout", "design": "koios/attention_layer", "layout": "edges", "seeds": 5}
+{"id": "layout__attention_layer__center_edges", "kind": "layout", "design": "koios/attention_layer", "layout": "center_edges", "seeds": 5}
+{"id": "layout__stereovision1__aligned", "kind": "layout", "design": "vtr/stereovision1", "layout": "aligned", "seeds": 5}
+{"id": "layout__stereovision1__staggered", "kind": "layout", "design": "vtr/stereovision1", "layout": "staggered", "seeds": 5}
+{"id": "layout__stereovision1__hb_one_layer", "kind": "layout", "design": "vtr/stereovision1", "layout": "hb_one_layer", "seeds": 5}
+{"id": "layout__stereovision1__split_types", "kind": "layout", "design": "vtr/stereovision1", "layout": "split_types", "seeds": 5}
+{"id": "layout__stereovision1__center", "kind": "layout", "design": "vtr/stereovision1", "layout": "center", "seeds": 5}
+{"id": "layout__stereovision1__edges", "kind": "layout", "design": "vtr/stereovision1", "layout": "edges", "seeds": 5}
+{"id": "layout__stereovision1__center_edges", "kind": "layout", "design": "vtr/stereovision1", "layout": "center_edges", "seeds": 5}
+{"id": "layout__robot_rl__aligned", "kind": "layout", "design": "koios/robot_rl", "layout": "aligned", "seeds": 5}
+{"id": "layout__robot_rl__staggered", "kind": "layout", "design": "koios/robot_rl", "layout": "staggered", "seeds": 5}
+{"id": "layout__robot_rl__hb_one_layer", "kind": "layout", "design": "koios/robot_rl", "layout": "hb_one_layer", "seeds": 5}
+{"id": "layout__robot_rl__split_types", "kind": "layout", "design": "koios/robot_rl", "layout": "split_types", "seeds": 5}
+{"id": "layout__robot_rl__center", "kind": "layout", "design": "koios/robot_rl", "layout": "center", "seeds": 5}
+{"id": "layout__robot_rl__edges", "kind": "layout", "design": "koios/robot_rl", "layout": "edges", "seeds": 5}
+{"id": "layout__robot_rl__center_edges", "kind": "layout", "design": "koios/robot_rl", "layout": "center_edges", "seeds": 5}
+{"id": "layout__conv_layer__aligned", "kind": "layout", "design": "koios/conv_layer", "layout": "aligned", "seeds": 5}
+{"id": "layout__conv_layer__staggered", "kind": "layout", "design": "koios/conv_layer", "layout": "staggered", "seeds": 5}
+{"id": "layout__conv_layer__hb_one_layer", "kind": "layout", "design": "koios/conv_layer", "layout": "hb_one_layer", "seeds": 5}
+{"id": "layout__conv_layer__split_types", "kind": "layout", "design": "koios/conv_layer", "layout": "split_types", "seeds": 5}
+{"id": "layout__conv_layer__center", "kind": "layout", "design": "koios/conv_layer", "layout": "center", "seeds": 5}
+{"id": "layout__conv_layer__edges", "kind": "layout", "design": "koios/conv_layer", "layout": "edges", "seeds": 5}
+{"id": "layout__conv_layer__center_edges", "kind": "layout", "design": "koios/conv_layer", "layout": "center_edges", "seeds": 5}
+{"id": "layout__arm_core__aligned", "kind": "layout", "design": "vtr/arm_core", "layout": "aligned", "seeds": 5}
+{"id": "layout__arm_core__staggered", "kind": "layout", "design": "vtr/arm_core", "layout": "staggered", "seeds": 5}
+{"id": "layout__arm_core__hb_one_layer", "kind": "layout", "design": "vtr/arm_core", "layout": "hb_one_layer", "seeds": 5}
+{"id": "layout__arm_core__split_types", "kind": "layout", "design": "vtr/arm_core", "layout": "split_types", "seeds": 5}
+{"id": "layout__arm_core__center", "kind": "layout", "design": "vtr/arm_core", "layout": "center", "seeds": 5}
+{"id": "layout__arm_core__edges", "kind": "layout", "design": "vtr/arm_core", "layout": "edges", "seeds": 5}
+{"id": "layout__arm_core__center_edges", "kind": "layout", "design": "vtr/arm_core", "layout": "center_edges", "seeds": 5}
+{"id": "conn__tpu_like.small.os__p0.1_v1", "kind": "conn", "design": "koios/tpu_like.small.os", "conn": 0.1, "vconn": 1, "seeds": 5}
+{"id": "conn__tpu_like.small.os__p0.25_v1", "kind": "conn", "design": "koios/tpu_like.small.os", "conn": 0.25, "vconn": 1, "seeds": 5}
+{"id": "conn__tpu_like.small.os__p0.5_v1", "kind": "conn", "design": "koios/tpu_like.small.os", "conn": 0.5, "vconn": 1, "seeds": 5}
+{"id": "conn__tpu_like.small.os__p0.75_v1", "kind": "conn", "design": "koios/tpu_like.small.os", "conn": 0.75, "vconn": 1, "seeds": 5}
+{"id": "conn__tpu_like.small.os__p1.0_v0.25", "kind": "conn", "design": "koios/tpu_like.small.os", "conn": 1.0, "vconn": 0.25, "seeds": 5}
+{"id": "conn__tpu_like.small.os__p1.0_v0.5", "kind": "conn", "design": "koios/tpu_like.small.os", "conn": 1.0, "vconn": 0.5, "seeds": 5}
+{"id": "conn__attention_layer__p0.1_v1", "kind": "conn", "design": "koios/attention_layer", "conn": 0.1, "vconn": 1, "seeds": 5}
+{"id": "conn__attention_layer__p0.25_v1", "kind": "conn", "design": "koios/attention_layer", "conn": 0.25, "vconn": 1, "seeds": 5}
+{"id": "conn__attention_layer__p0.5_v1", "kind": "conn", "design": "koios/attention_layer", "conn": 0.5, "vconn": 1, "seeds": 5}
+{"id": "conn__attention_layer__p0.75_v1", "kind": "conn", "design": "koios/attention_layer", "conn": 0.75, "vconn": 1, "seeds": 5}
+{"id": "conn__attention_layer__p1.0_v0.25", "kind": "conn", "design": "koios/attention_layer", "conn": 1.0, "vconn": 0.25, "seeds": 5}
+{"id": "conn__attention_layer__p1.0_v0.5", "kind": "conn", "design": "koios/attention_layer", "conn": 1.0, "vconn": 0.5, "seeds": 5}
+{"id": "conn__stereovision1__p0.1_v1", "kind": "conn", "design": "vtr/stereovision1", "conn": 0.1, "vconn": 1, "seeds": 5}
+{"id": "conn__stereovision1__p0.25_v1", "kind": "conn", "design": "vtr/stereovision1", "conn": 0.25, "vconn": 1, "seeds": 5}
+{"id": "conn__stereovision1__p0.5_v1", "kind": "conn", "design": "vtr/stereovision1", "conn": 0.5, "vconn": 1, "seeds": 5}
+{"id": "conn__stereovision1__p0.75_v1", "kind": "conn", "design": "vtr/stereovision1", "conn": 0.75, "vconn": 1, "seeds": 5}
+{"id": "conn__stereovision1__p1.0_v0.25", "kind": "conn", "design": "vtr/stereovision1", "conn": 1.0, "vconn": 0.25, "seeds": 5}
+{"id": "conn__stereovision1__p1.0_v0.5", "kind": "conn", "design": "vtr/stereovision1", "conn": 1.0, "vconn": 0.5, "seeds": 5}
+{"id": "conn__robot_rl__p0.1_v1", "kind": "conn", "design": "koios/robot_rl", "conn": 0.1, "vconn": 1, "seeds": 5}
+{"id": "conn__robot_rl__p0.25_v1", "kind": "conn", "design": "koios/robot_rl", "conn": 0.25, "vconn": 1, "seeds": 5}
+{"id": "conn__robot_rl__p0.5_v1", "kind": "conn", "design": "koios/robot_rl", "conn": 0.5, "vconn": 1, "seeds": 5}
+{"id": "conn__robot_rl__p0.75_v1", "kind": "conn", "design": "koios/robot_rl", "conn": 0.75, "vconn": 1, "seeds": 5}
+{"id": "conn__robot_rl__p1.0_v0.25", "kind": "conn", "design": "koios/robot_rl", "conn": 1.0, "vconn": 0.25, "seeds": 5}
+{"id": "conn__robot_rl__p1.0_v0.5", "kind": "conn", "design": "koios/robot_rl", "conn": 1.0, "vconn": 0.5, "seeds": 5}
+{"id": "rq1__tpu_like.small.os", "kind": "rq1", "design": "koios/tpu_like.small.os", "seeds": 5}
+{"id": "rq1__tpu_like.small.ws", "kind": "rq1", "design": "koios/tpu_like.small.ws", "seeds": 5}
+{"id": "rq1__conv_layer", "kind": "rq1", "design": "koios/conv_layer", "seeds": 5}
+{"id": "rq1__attention_layer", "kind": "rq1", "design": "koios/attention_layer", "seeds": 5}
+{"id": "rq1__stereovision1", "kind": "rq1", "design": "vtr/stereovision1", "seeds": 5}
+{"id": "rq1__stereovision2", "kind": "rq1", "design": "vtr/stereovision2", "seeds": 5}
+{"id": "rq1__robot_rl", "kind": "rq1", "design": "koios/robot_rl", "seeds": 5}
+{"id": "rq1__eltwise_layer", "kind": "rq1", "design": "koios/eltwise_layer", "seeds": 5}
+{"id": "rq1__arm_core", "kind": "rq1", "design": "vtr/arm_core", "seeds": 5}
+{"id": "rq1__LU8PEEng", "kind": "rq1", "design": "vtr/LU8PEEng", "seeds": 5}
+{"id": "rq1__reduction_layer", "kind": "rq1", "design": "koios/reduction_layer", "seeds": 5}
+{"id": "rq1__mkDelayWorker32B", "kind": "rq1", "design": "vtr/mkDelayWorker32B", "seeds": 5}
+{"id": "rq1__bgm", "kind": "rq1", "design": "vtr/bgm", "seeds": 5}
+{"id": "rq1__softmax", "kind": "rq1", "design": "koios/softmax", "seeds": 5}
+{"id": "rq1__stereovision0", "kind": "rq1", "design": "vtr/stereovision0", "seeds": 5}
+{"id": "rq1__blob_merge", "kind": "rq1", "design": "vtr/blob_merge", "seeds": 5}
+{"id": "layout__tpu_like.small.ws__hb_one_layer", "kind": "layout", "design": "koios/tpu_like.small.ws", "layout": "hb_one_layer", "seeds": 5}
+{"id": "layout__tpu_like.small.ws__split_types", "kind": "layout", "design": "koios/tpu_like.small.ws", "layout": "split_types", "seeds": 5}
+{"id": "layout__tpu_like.small.ws__center", "kind": "layout", "design": "koios/tpu_like.small.ws", "layout": "center", "seeds": 5}
+{"id": "layout__tpu_like.small.ws__staggered", "kind": "layout", "design": "koios/tpu_like.small.ws", "layout": "staggered", "seeds": 5}
+{"id": "layout__eltwise_layer__hb_one_layer", "kind": "layout", "design": "koios/eltwise_layer", "layout": "hb_one_layer", "seeds": 5}
+{"id": "layout__eltwise_layer__split_types", "kind": "layout", "design": "koios/eltwise_layer", "layout": "split_types", "seeds": 5}
+{"id": "layout__eltwise_layer__center", "kind": "layout", "design": "koios/eltwise_layer", "layout": "center", "seeds": 5}
+{"id": "layout__eltwise_layer__staggered", "kind": "layout", "design": "koios/eltwise_layer", "layout": "staggered", "seeds": 5}
+{"id": "layout__mkDelayWorker32B__hb_one_layer", "kind": "layout", "design": "vtr/mkDelayWorker32B", "layout": "hb_one_layer", "seeds": 5}
+{"id": "layout__mkDelayWorker32B__split_types", "kind": "layout", "design": "vtr/mkDelayWorker32B", "layout": "split_types", "seeds": 5}
+{"id": "layout__mkDelayWorker32B__center", "kind": "layout", "design": "vtr/mkDelayWorker32B", "layout": "center", "seeds": 5}
+{"id": "layout__mkDelayWorker32B__staggered", "kind": "layout", "design": "vtr/mkDelayWorker32B", "layout": "staggered", "seeds": 5}
+{"id": "layout__reduction_layer__hb_one_layer", "kind": "layout", "design": "koios/reduction_layer", "layout": "hb_one_layer", "seeds": 5}
+{"id": "layout__reduction_layer__split_types", "kind": "layout", "design": "koios/reduction_layer", "layout": "split_types", "seeds": 5}
+{"id": "layout__reduction_layer__center", "kind": "layout", "design": "koios/reduction_layer", "layout": "center", "seeds": 5}
+{"id": "layout__reduction_layer__staggered", "kind": "layout", "design": "koios/reduction_layer", "layout": "staggered", "seeds": 5}
+{"id": "layout__stereovision2__hb_one_layer", "kind": "layout", "design": "vtr/stereovision2", "layout": "hb_one_layer", "seeds": 5}
+{"id": "layout__stereovision2__split_types", "kind": "layout", "design": "vtr/stereovision2", "layout": "split_types", "seeds": 5}
+{"id": "layout__stereovision2__center", "kind": "layout", "design": "vtr/stereovision2", "layout": "center", "seeds": 5}
+{"id": "layout__stereovision2__staggered", "kind": "layout", "design": "vtr/stereovision2", "layout": "staggered", "seeds": 5}
+{"id": "layout__LU8PEEng__hb_one_layer", "kind": "layout", "design": "vtr/LU8PEEng", "layout": "hb_one_layer", "seeds": 5}
+{"id": "layout__LU8PEEng__split_types", "kind": "layout", "design": "vtr/LU8PEEng", "layout": "split_types", "seeds": 5}
+{"id": "layout__LU8PEEng__center", "kind": "layout", "design": "vtr/LU8PEEng", "layout": "center", "seeds": 5}
+{"id": "layout__LU8PEEng__staggered", "kind": "layout", "design": "vtr/LU8PEEng", "layout": "staggered", "seeds": 5}
+{"id": "conn__tpu_like.small.os__p1.0_v0.05", "kind": "conn", "design": "koios/tpu_like.small.os", "conn": 1.0, "vconn": 0.05, "seeds": 5}
+{"id": "conn__tpu_like.small.os__p1.0_v0.1", "kind": "conn", "design": "koios/tpu_like.small.os", "conn": 1.0, "vconn": 0.1, "seeds": 5}
+{"id": "conn__tpu_like.small.os__p0.5_v0.5", "kind": "conn", "design": "koios/tpu_like.small.os", "conn": 0.5, "vconn": 0.5, "seeds": 5}
+{"id": "conn__attention_layer__p1.0_v0.05", "kind": "conn", "design": "koios/attention_layer", "conn": 1.0, "vconn": 0.05, "seeds": 5}
+{"id": "conn__attention_layer__p1.0_v0.1", "kind": "conn", "design": "koios/attention_layer", "conn": 1.0, "vconn": 0.1, "seeds": 5}
+{"id": "conn__attention_layer__p0.5_v0.5", "kind": "conn", "design": "koios/attention_layer", "conn": 0.5, "vconn": 0.5, "seeds": 5}
+{"id": "conn__stereovision1__p1.0_v0.05", "kind": "conn", "design": "vtr/stereovision1", "conn": 1.0, "vconn": 0.05, "seeds": 5}
+{"id": "conn__stereovision1__p1.0_v0.1", "kind": "conn", "design": "vtr/stereovision1", "conn": 1.0, "vconn": 0.1, "seeds": 5}
+{"id": "conn__stereovision1__p0.5_v0.5", "kind": "conn", "design": "vtr/stereovision1", "conn": 0.5, "vconn": 0.5, "seeds": 5}
+{"id": "conn__robot_rl__p1.0_v0.05", "kind": "conn", "design": "koios/robot_rl", "conn": 1.0, "vconn": 0.05, "seeds": 5}
+{"id": "conn__robot_rl__p1.0_v0.1", "kind": "conn", "design": "koios/robot_rl", "conn": 1.0, "vconn": 0.1, "seeds": 5}
+{"id": "conn__robot_rl__p0.5_v0.5", "kind": "conn", "design": "koios/robot_rl", "conn": 0.5, "vconn": 0.5, "seeds": 5}
+{"id": "conn__conv_layer__p0.1_v1.0", "kind": "conn", "design": "koios/conv_layer", "conn": 0.1, "vconn": 1.0, "seeds": 5}
+{"id": "conn__conv_layer__p0.25_v1.0", "kind": "conn", "design": "koios/conv_layer", "conn": 0.25, "vconn": 1.0, "seeds": 5}
+{"id": "conn__conv_layer__p0.5_v1.0", "kind": "conn", "design": "koios/conv_layer", "conn": 0.5, "vconn": 1.0, "seeds": 5}
+{"id": "conn__conv_layer__p1.0_v0.1", "kind": "conn", "design": "koios/conv_layer", "conn": 1.0, "vconn": 0.1, "seeds": 5}
+{"id": "conn__conv_layer__p1.0_v0.25", "kind": "conn", "design": "koios/conv_layer", "conn": 1.0, "vconn": 0.25, "seeds": 5}
+{"id": "conn__conv_layer__p1.0_v0.5", "kind": "conn", "design": "koios/conv_layer", "conn": 1.0, "vconn": 0.5, "seeds": 5}
+{"id": "conn__eltwise_layer__p0.1_v1.0", "kind": "conn", "design": "koios/eltwise_layer", "conn": 0.1, "vconn": 1.0, "seeds": 5}
+{"id": "conn__eltwise_layer__p0.25_v1.0", "kind": "conn", "design": "koios/eltwise_layer", "conn": 0.25, "vconn": 1.0, "seeds": 5}
+{"id": "conn__eltwise_layer__p0.5_v1.0", "kind": "conn", "design": "koios/eltwise_layer", "conn": 0.5, "vconn": 1.0, "seeds": 5}
+{"id": "conn__eltwise_layer__p1.0_v0.1", "kind": "conn", "design": "koios/eltwise_layer", "conn": 1.0, "vconn": 0.1, "seeds": 5}
+{"id": "conn__eltwise_layer__p1.0_v0.25", "kind": "conn", "design": "koios/eltwise_layer", "conn": 1.0, "vconn": 0.25, "seeds": 5}
+{"id": "conn__eltwise_layer__p1.0_v0.5", "kind": "conn", "design": "koios/eltwise_layer", "conn": 1.0, "vconn": 0.5, "seeds": 5}
+{"id": "s10__layout__mkDelayWorker32B__aligned", "kind": "layout", "design": "vtr/mkDelayWorker32B", "layout": "aligned", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__mkDelayWorker32B__split_types", "kind": "layout", "design": "vtr/mkDelayWorker32B", "layout": "split_types", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__mkDelayWorker32B__split_rev", "kind": "layout", "design": "vtr/mkDelayWorker32B", "layout": "split_rev", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__mkDelayWorker32B__hb_one_layer", "kind": "layout", "design": "vtr/mkDelayWorker32B", "layout": "hb_one_layer", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__mkDelayWorker32B__hb_top", "kind": "layout", "design": "vtr/mkDelayWorker32B", "layout": "hb_top", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__stereovision2__aligned", "kind": "layout", "design": "vtr/stereovision2", "layout": "aligned", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__stereovision2__split_types", "kind": "layout", "design": "vtr/stereovision2", "layout": "split_types", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__stereovision2__split_rev", "kind": "layout", "design": "vtr/stereovision2", "layout": "split_rev", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__stereovision2__hb_one_layer", "kind": "layout", "design": "vtr/stereovision2", "layout": "hb_one_layer", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__stereovision2__hb_top", "kind": "layout", "design": "vtr/stereovision2", "layout": "hb_top", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__eltwise_layer__aligned", "kind": "layout", "design": "koios/eltwise_layer", "layout": "aligned", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__eltwise_layer__split_types", "kind": "layout", "design": "koios/eltwise_layer", "layout": "split_types", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__eltwise_layer__split_rev", "kind": "layout", "design": "koios/eltwise_layer", "layout": "split_rev", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__eltwise_layer__hb_one_layer", "kind": "layout", "design": "koios/eltwise_layer", "layout": "hb_one_layer", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__eltwise_layer__hb_top", "kind": "layout", "design": "koios/eltwise_layer", "layout": "hb_top", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__reduction_layer__aligned", "kind": "layout", "design": "koios/reduction_layer", "layout": "aligned", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__reduction_layer__split_types", "kind": "layout", "design": "koios/reduction_layer", "layout": "split_types", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__reduction_layer__split_rev", "kind": "layout", "design": "koios/reduction_layer", "layout": "split_rev", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__reduction_layer__hb_one_layer", "kind": "layout", "design": "koios/reduction_layer", "layout": "hb_one_layer", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__reduction_layer__hb_top", "kind": "layout", "design": "koios/reduction_layer", "layout": "hb_top", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__conv_layer__aligned", "kind": "layout", "design": "koios/conv_layer", "layout": "aligned", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__conv_layer__split_types", "kind": "layout", "design": "koios/conv_layer", "layout": "split_types", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__conv_layer__split_rev", "kind": "layout", "design": "koios/conv_layer", "layout": "split_rev", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__conv_layer__hb_one_layer", "kind": "layout", "design": "koios/conv_layer", "layout": "hb_one_layer", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__conv_layer__hb_top", "kind": "layout", "design": "koios/conv_layer", "layout": "hb_top", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__tpu_like.small.ws__aligned", "kind": "layout", "design": "koios/tpu_like.small.ws", "layout": "aligned", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__tpu_like.small.ws__split_types", "kind": "layout", "design": "koios/tpu_like.small.ws", "layout": "split_types", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__tpu_like.small.ws__split_rev", "kind": "layout", "design": "koios/tpu_like.small.ws", "layout": "split_rev", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__tpu_like.small.ws__hb_one_layer", "kind": "layout", "design": "koios/tpu_like.small.ws", "layout": "hb_one_layer", "seeds": 10, "tag": "s10"}
+{"id": "s10__layout__tpu_like.small.ws__hb_top", "kind": "layout", "design": "koios/tpu_like.small.ws", "layout": "hb_top", "seeds": 10, "tag": "s10"}
+{"id": "loc__tpu_like.small.os__core_p0.25", "kind": "conn", "design": "koios/tpu_like.small.os", "conn": 0.25, "vconn": 1, "loc": "core", "seeds": 5}
+{"id": "loc__tpu_like.small.os__perimeter_p0.25", "kind": "conn", "design": "koios/tpu_like.small.os", "conn": 0.25, "vconn": 1, "loc": "perimeter", "seeds": 5}
+{"id": "loc__tpu_like.small.os__rows_p0.25", "kind": "conn", "design": "koios/tpu_like.small.os", "conn": 0.25, "vconn": 1, "loc": "rows", "seeds": 5}
+{"id": "loc__tpu_like.small.os__columns_p0.25", "kind": "conn", "design": "koios/tpu_like.small.os", "conn": 0.25, "vconn": 1, "loc": "columns", "seeds": 5}
+{"id": "conn__tpu_like.small.os__p0.2_v0.5", "kind": "conn", "design": "koios/tpu_like.small.os", "conn": 0.2, "vconn": 0.5, "seeds": 5}
+{"id": "conn__tpu_like.small.os__p0.5_v0.2", "kind": "conn", "design": "koios/tpu_like.small.os", "conn": 0.5, "vconn": 0.2, "seeds": 5}
+{"id": "loc__attention_layer__core_p0.25", "kind": "conn", "design": "koios/attention_layer", "conn": 0.25, "vconn": 1, "loc": "core", "seeds": 5}
+{"id": "loc__attention_layer__perimeter_p0.25", "kind": "conn", "design": "koios/attention_layer", "conn": 0.25, "vconn": 1, "loc": "perimeter", "seeds": 5}
+{"id": "loc__attention_layer__rows_p0.25", "kind": "conn", "design": "koios/attention_layer", "conn": 0.25, "vconn": 1, "loc": "rows", "seeds": 5}
+{"id": "loc__attention_layer__columns_p0.25", "kind": "conn", "design": "koios/attention_layer", "conn": 0.25, "vconn": 1, "loc": "columns", "seeds": 5}
+{"id": "conn__attention_layer__p0.2_v0.5", "kind": "conn", "design": "koios/attention_layer", "conn": 0.2, "vconn": 0.5, "seeds": 5}
+{"id": "conn__attention_layer__p0.5_v0.2", "kind": "conn", "design": "koios/attention_layer", "conn": 0.5, "vconn": 0.2, "seeds": 5}
+{"id": "loc__stereovision1__core_p0.25", "kind": "conn", "design": "vtr/stereovision1", "conn": 0.25, "vconn": 1, "loc": "core", "seeds": 5}
+{"id": "loc__stereovision1__perimeter_p0.25", "kind": "conn", "design": "vtr/stereovision1", "conn": 0.25, "vconn": 1, "loc": "perimeter", "seeds": 5}
+{"id": "loc__stereovision1__rows_p0.25", "kind": "conn", "design": "vtr/stereovision1", "conn": 0.25, "vconn": 1, "loc": "rows", "seeds": 5}
+{"id": "loc__stereovision1__columns_p0.25", "kind": "conn", "design": "vtr/stereovision1", "conn": 0.25, "vconn": 1, "loc": "columns", "seeds": 5}
+{"id": "conn__stereovision1__p0.2_v0.5", "kind": "conn", "design": "vtr/stereovision1", "conn": 0.2, "vconn": 0.5, "seeds": 5}
+{"id": "conn__stereovision1__p0.5_v0.2", "kind": "conn", "design": "vtr/stereovision1", "conn": 0.5, "vconn": 0.2, "seeds": 5}
+{"id": "loc__robot_rl__core_p0.25", "kind": "conn", "design": "koios/robot_rl", "conn": 0.25, "vconn": 1, "loc": "core", "seeds": 5}
+{"id": "loc__robot_rl__perimeter_p0.25", "kind": "conn", "design": "koios/robot_rl", "conn": 0.25, "vconn": 1, "loc": "perimeter", "seeds": 5}
+{"id": "loc__robot_rl__rows_p0.25", "kind": "conn", "design": "koios/robot_rl", "conn": 0.25, "vconn": 1, "loc": "rows", "seeds": 5}
+{"id": "loc__robot_rl__columns_p0.25", "kind": "conn", "design": "koios/robot_rl", "conn": 0.25, "vconn": 1, "loc": "columns", "seeds": 5}
+{"id": "conn__robot_rl__p0.2_v0.5", "kind": "conn", "design": "koios/robot_rl", "conn": 0.2, "vconn": 0.5, "seeds": 5}
+{"id": "conn__robot_rl__p0.5_v0.2", "kind": "conn", "design": "koios/robot_rl", "conn": 0.5, "vconn": 0.2, "seeds": 5}
+{"id": "loc__conv_layer__core_p0.25", "kind": "conn", "design": "koios/conv_layer", "conn": 0.25, "vconn": 1, "loc": "core", "seeds": 5}
+{"id": "loc__conv_layer__perimeter_p0.25", "kind": "conn", "design": "koios/conv_layer", "conn": 0.25, "vconn": 1, "loc": "perimeter", "seeds": 5}
+{"id": "loc__conv_layer__rows_p0.25", "kind": "conn", "design": "koios/conv_layer", "conn": 0.25, "vconn": 1, "loc": "rows", "seeds": 5}
+{"id": "loc__conv_layer__columns_p0.25", "kind": "conn", "design": "koios/conv_layer", "conn": 0.25, "vconn": 1, "loc": "columns", "seeds": 5}
+{"id": "conn__conv_layer__p0.2_v0.5", "kind": "conn", "design": "koios/conv_layer", "conn": 0.2, "vconn": 0.5, "seeds": 5}
+{"id": "conn__conv_layer__p0.5_v0.2", "kind": "conn", "design": "koios/conv_layer", "conn": 0.5, "vconn": 0.2, "seeds": 5}
+{"id": "loc__eltwise_layer__core_p0.25", "kind": "conn", "design": "koios/eltwise_layer", "conn": 0.25, "vconn": 1, "loc": "core", "seeds": 5}
+{"id": "loc__eltwise_layer__perimeter_p0.25", "kind": "conn", "design": "koios/eltwise_layer", "conn": 0.25, "vconn": 1, "loc": "perimeter", "seeds": 5}
+{"id": "loc__eltwise_layer__rows_p0.25", "kind": "conn", "design": "koios/eltwise_layer", "conn": 0.25, "vconn": 1, "loc": "rows", "seeds": 5}
+{"id": "loc__eltwise_layer__columns_p0.25", "kind": "conn", "design": "koios/eltwise_layer", "conn": 0.25, "vconn": 1, "loc": "columns", "seeds": 5}
+{"id": "conn__eltwise_layer__p0.2_v0.5", "kind": "conn", "design": "koios/eltwise_layer", "conn": 0.2, "vconn": 0.5, "seeds": 5}
+{"id": "conn__eltwise_layer__p0.5_v0.2", "kind": "conn", "design": "koios/eltwise_layer", "conn": 0.5, "vconn": 0.2, "seeds": 5}
+{"id": "rec__attention_layer", "kind": "layout", "design": "koios/attention_layer", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "seeds": 5, "tag": "rec"}
+{"id": "rec__conv_layer", "kind": "layout", "design": "koios/conv_layer", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "seeds": 5, "tag": "rec"}
+{"id": "rec__eltwise_layer", "kind": "layout", "design": "koios/eltwise_layer", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "seeds": 5, "tag": "rec"}
+{"id": "rec__reduction_layer", "kind": "layout", "design": "koios/reduction_layer", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "seeds": 5, "tag": "rec"}
+{"id": "rec__robot_rl", "kind": "layout", "design": "koios/robot_rl", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "seeds": 5, "tag": "rec"}
+{"id": "layout__softmax__split_types", "kind": "layout", "design": "koios/softmax", "layout": "split_types", "seeds": 5}
+{"id": "rec__softmax", "kind": "layout", "design": "koios/softmax", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "seeds": 5, "tag": "rec"}
+{"id": "rec__tpu_like.small.os", "kind": "layout", "design": "koios/tpu_like.small.os", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "seeds": 5, "tag": "rec"}
+{"id": "rec__tpu_like.small.ws", "kind": "layout", "design": "koios/tpu_like.small.ws", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "seeds": 5, "tag": "rec"}
+{"id": "rec__LU8PEEng", "kind": "layout", "design": "vtr/LU8PEEng", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "seeds": 5, "tag": "rec"}
+{"id": "rec__arm_core", "kind": "layout", "design": "vtr/arm_core", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "seeds": 5, "tag": "rec"}
+{"id": "layout__bgm__split_types", "kind": "layout", "design": "vtr/bgm", "layout": "split_types", "seeds": 5}
+{"id": "rec__bgm", "kind": "layout", "design": "vtr/bgm", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "seeds": 5, "tag": "rec"}
+{"id": "layout__blob_merge__split_types", "kind": "layout", "design": "vtr/blob_merge", "layout": "split_types", "seeds": 5}
+{"id": "rec__blob_merge", "kind": "layout", "design": "vtr/blob_merge", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "seeds": 5, "tag": "rec"}
+{"id": "rec__mkDelayWorker32B", "kind": "layout", "design": "vtr/mkDelayWorker32B", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "seeds": 5, "tag": "rec"}
+{"id": "layout__stereovision0__split_types", "kind": "layout", "design": "vtr/stereovision0", "layout": "split_types", "seeds": 5}
+{"id": "rec__stereovision0", "kind": "layout", "design": "vtr/stereovision0", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "seeds": 5, "tag": "rec"}
+{"id": "rec__stereovision1", "kind": "layout", "design": "vtr/stereovision1", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "seeds": 5, "tag": "rec"}
+{"id": "rec__stereovision2", "kind": "layout", "design": "vtr/stereovision2", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "seeds": 5, "tag": "rec"}
+{"id": "delay__tpu_like.small.os__aligned_d0.3", "kind": "layout", "design": "koios/tpu_like.small.os", "layout": "aligned", "delay": 0.3, "seeds": 5, "tag": "delay"}
+{"id": "delay__tpu_like.small.os__rec_d0.3", "kind": "layout", "design": "koios/tpu_like.small.os", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "delay": 0.3, "seeds": 5, "tag": "delay"}
+{"id": "delay__tpu_like.small.os__aligned_d1.5", "kind": "layout", "design": "koios/tpu_like.small.os", "layout": "aligned", "delay": 1.5, "seeds": 5, "tag": "delay"}
+{"id": "delay__tpu_like.small.os__rec_d1.5", "kind": "layout", "design": "koios/tpu_like.small.os", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "delay": 1.5, "seeds": 5, "tag": "delay"}
+{"id": "delay__tpu_like.small.os__aligned_d3.0", "kind": "layout", "design": "koios/tpu_like.small.os", "layout": "aligned", "delay": 3.0, "seeds": 5, "tag": "delay"}
+{"id": "delay__tpu_like.small.os__rec_d3.0", "kind": "layout", "design": "koios/tpu_like.small.os", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "delay": 3.0, "seeds": 5, "tag": "delay"}
+{"id": "delay__attention_layer__aligned_d0.3", "kind": "layout", "design": "koios/attention_layer", "layout": "aligned", "delay": 0.3, "seeds": 5, "tag": "delay"}
+{"id": "delay__attention_layer__rec_d0.3", "kind": "layout", "design": "koios/attention_layer", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "delay": 0.3, "seeds": 5, "tag": "delay"}
+{"id": "delay__attention_layer__aligned_d1.5", "kind": "layout", "design": "koios/attention_layer", "layout": "aligned", "delay": 1.5, "seeds": 5, "tag": "delay"}
+{"id": "delay__attention_layer__rec_d1.5", "kind": "layout", "design": "koios/attention_layer", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "delay": 1.5, "seeds": 5, "tag": "delay"}
+{"id": "delay__attention_layer__aligned_d3.0", "kind": "layout", "design": "koios/attention_layer", "layout": "aligned", "delay": 3.0, "seeds": 5, "tag": "delay"}
+{"id": "delay__attention_layer__rec_d3.0", "kind": "layout", "design": "koios/attention_layer", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "delay": 3.0, "seeds": 5, "tag": "delay"}
+{"id": "delay__stereovision1__aligned_d0.3", "kind": "layout", "design": "vtr/stereovision1", "layout": "aligned", "delay": 0.3, "seeds": 5, "tag": "delay"}
+{"id": "delay__stereovision1__rec_d0.3", "kind": "layout", "design": "vtr/stereovision1", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "delay": 0.3, "seeds": 5, "tag": "delay"}
+{"id": "delay__stereovision1__aligned_d1.5", "kind": "layout", "design": "vtr/stereovision1", "layout": "aligned", "delay": 1.5, "seeds": 5, "tag": "delay"}
+{"id": "delay__stereovision1__rec_d1.5", "kind": "layout", "design": "vtr/stereovision1", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "delay": 1.5, "seeds": 5, "tag": "delay"}
+{"id": "delay__stereovision1__aligned_d3.0", "kind": "layout", "design": "vtr/stereovision1", "layout": "aligned", "delay": 3.0, "seeds": 5, "tag": "delay"}
+{"id": "delay__stereovision1__rec_d3.0", "kind": "layout", "design": "vtr/stereovision1", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "delay": 3.0, "seeds": 5, "tag": "delay"}
+{"id": "delay__conv_layer__aligned_d0.3", "kind": "layout", "design": "koios/conv_layer", "layout": "aligned", "delay": 0.3, "seeds": 5, "tag": "delay"}
+{"id": "delay__conv_layer__rec_d0.3", "kind": "layout", "design": "koios/conv_layer", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "delay": 0.3, "seeds": 5, "tag": "delay"}
+{"id": "delay__conv_layer__aligned_d1.5", "kind": "layout", "design": "koios/conv_layer", "layout": "aligned", "delay": 1.5, "seeds": 5, "tag": "delay"}
+{"id": "delay__conv_layer__rec_d1.5", "kind": "layout", "design": "koios/conv_layer", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "delay": 1.5, "seeds": 5, "tag": "delay"}
+{"id": "delay__conv_layer__aligned_d3.0", "kind": "layout", "design": "koios/conv_layer", "layout": "aligned", "delay": 3.0, "seeds": 5, "tag": "delay"}
+{"id": "delay__conv_layer__rec_d3.0", "kind": "layout", "design": "koios/conv_layer", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "delay": 3.0, "seeds": 5, "tag": "delay"}
+{"id": "delay__eltwise_layer__aligned_d0.3", "kind": "layout", "design": "koios/eltwise_layer", "layout": "aligned", "delay": 0.3, "seeds": 5, "tag": "delay"}
+{"id": "delay__eltwise_layer__rec_d0.3", "kind": "layout", "design": "koios/eltwise_layer", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "delay": 0.3, "seeds": 5, "tag": "delay"}
+{"id": "delay__eltwise_layer__aligned_d1.5", "kind": "layout", "design": "koios/eltwise_layer", "layout": "aligned", "delay": 1.5, "seeds": 5, "tag": "delay"}
+{"id": "delay__eltwise_layer__rec_d1.5", "kind": "layout", "design": "koios/eltwise_layer", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "delay": 1.5, "seeds": 5, "tag": "delay"}
+{"id": "delay__eltwise_layer__aligned_d3.0", "kind": "layout", "design": "koios/eltwise_layer", "layout": "aligned", "delay": 3.0, "seeds": 5, "tag": "delay"}
+{"id": "delay__eltwise_layer__rec_d3.0", "kind": "layout", "design": "koios/eltwise_layer", "layout": "split_types", "conn": 1.0, "vconn": 0.1, "delay": 3.0, "seeds": 5, "tag": "delay"}
+{"id": "custom__attention_layer__t40", "kind": "custom", "design": "koios/attention_layer", "seeds": 5, "structured": {"dsp_on_l0": 5, "bram_on_l0": 12, "cluster": 0.2265604238389356, "stagger": 0.2020435696919715, "band_pos": 0.7749147911867577}}
+{"id": "custom__attention_layer__t62", "kind": "custom", "design": "koios/attention_layer", "seeds": 5, "structured": {"dsp_on_l0": 7, "bram_on_l0": 13, "cluster": 0.458700127367074, "stagger": 0.5931515513014863, "band_pos": 0.6033069761551308}}
+{"id": "custom__attention_layer__t66", "kind": "custom", "design": "koios/attention_layer", "seeds": 5, "structured": {"dsp_on_l0": 5, "bram_on_l0": 10, "cluster": 0.3152266700880163, "stagger": 0.20498712790046514, "band_pos": 0.8055231965972002}}
+{"id": "custom__stereovision1__t45", "kind": "custom", "design": "vtr/stereovision1", "seeds": 5, "structured": {"dsp_on_l0": 5, "bram_on_l0": 11, "cluster": 0.49441210060395246, "stagger": 0.31675978668781113, "band_pos": 0.30575718132471086}}
+{"id": "custom__stereovision1__t35", "kind": "custom", "design": "vtr/stereovision1", "seeds": 5, "structured": {"dsp_on_l0": 4, "bram_on_l0": 9, "cluster": 0.3756207872269919, "stagger": 0.353368821356833, "band_pos": 0.5484901725482288}}
+{"id": "custom__stereovision1__t42", "kind": "custom", "design": "vtr/stereovision1", "seeds": 5, "structured": {"dsp_on_l0": 1, "bram_on_l0": 11, "cluster": 0.3500460035572319, "stagger": 0.341213762819155, "band_pos": 0.31235072072753667}}
+{"id": "custom__tpu_like_small_os__t63", "kind": "custom", "design": "koios/tpu_like.small.os", "seeds": 5, "structured": {"dsp_on_l0": 5, "bram_on_l0": 16, "cluster": 0.0005544039068590828, "stagger": 0.04413744817865939, "band_pos": 0.5932329438717937}}
+{"id": "custom__tpu_like_small_os__t46", "kind": "custom", "design": "koios/tpu_like.small.os", "seeds": 5, "structured": {"dsp_on_l0": 4, "bram_on_l0": 15, "cluster": 0.05880460494569291, "stagger": 0.22839550335199288, "band_pos": 0.5745972858552028}}
+{"id": "custom__tpu_like_small_os__t56", "kind": "custom", "design": "koios/tpu_like.small.os", "seeds": 5, "structured": {"dsp_on_l0": 4, "bram_on_l0": 15, "cluster": 0.1214410220161517, "stagger": 0.07874309975998045, "band_pos": 0.4819767676954071}}

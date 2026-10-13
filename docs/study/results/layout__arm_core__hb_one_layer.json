@@ -1,0 +1,192 @@
+{
+ "task": {
+  "id": "layout__arm_core__hb_one_layer",
+  "kind": "layout",
+  "design": "vtr/arm_core",
+  "layout": "hb_one_layer",
+  "seeds": 5
+ },
+ "sizing": {
+  "width_2d": 55,
+  "height_2d": 50,
+  "width": 39,
+  "height": 38,
+  "tiles_2d": 2544,
+  "tiles_3d": 2664,
+  "cap_2d": {
+   "clb": 1872,
+   "complex_dsp": 84,
+   "spram": 56,
+   "io": 1616
+  },
+  "cap_3d": {
+   "clb": 1944,
+   "complex_dsp": 90,
+   "spram": 60,
+   "io": 2336
+  },
+  "demand": {
+   "io": 312,
+   "clb": 1060,
+   "complex_dsp": 0,
+   "spram": 40
+  },
+  "target_util": 0.8
+ },
+ "cols_per_layer": [
+  27,
+  5,
+  5
+ ],
+ "seeds": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "3d": {
+  "cpd": 2.1310233287017764e-08,
+  "wl": 163281.17629332538,
+  "error": null,
+  "per_seed": [
+   {
+    "succeeded": true,
+    "place_cpd": 2.2385100000000004e-08,
+    "place_wl": 104383.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 2.1472200000000003e-08,
+    "route_wl": 161312.0,
+    "seed": 1,
+    "rc": 0,
+    "error": null
+   },
+   {
+    "succeeded": true,
+    "place_cpd": 2.22948e-08,
+    "place_wl": 102987.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 2.11081e-08,
+    "route_wl": 163391.0,
+    "seed": 2,
+    "rc": 0,
+    "error": null
+   },
+   {
+    "succeeded": true,
+    "place_cpd": 2.28157e-08,
+    "place_wl": 105345.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 2.09009e-08,
+    "route_wl": 164570.0,
+    "seed": 3,
+    "rc": 0,
+    "error": null
+   },
+   {
+    "succeeded": true,
+    "place_cpd": 2.27611e-08,
+    "place_wl": 105054.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 2.1431800000000002e-08,
+    "route_wl": 164075.0,
+    "seed": 4,
+    "rc": 0,
+    "error": null
+   },
+   {
+    "succeeded": true,
+    "place_cpd": 2.26943e-08,
+    "place_wl": 103001.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 2.16467e-08,
+    "route_wl": 163077.0,
+    "seed": 5,
+    "rc": 0,
+    "error": null
+   }
+  ],
+  "t_s": 110,
+  "columns": [
+   [
+    "bram",
+    "clb",
+    "dsp",
+    "bram",
+    "clb",
+    "clb",
+    "dsp",
+    "bram",
+    "clb",
+    "dsp",
+    "clb",
+    "bram",
+    "clb",
+    "dsp",
+    "bram",
+    "clb",
+    "clb",
+    "dsp",
+    "bram",
+    "clb",
+    "dsp",
+    "clb",
+    "bram",
+    "clb",
+    "dsp",
+    "bram",
+    "clb",
+    "clb",
+    "dsp",
+    "bram",
+    "clb",
+    "dsp",
+    "clb",
+    "bram",
+    "clb",
+    "dsp",
+    "clb"
+   ],
+   [
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "clb"
+   ]
+  ]
+ },
+ "t_total_s": 210
+}

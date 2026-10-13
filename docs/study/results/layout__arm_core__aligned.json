@@ -1,0 +1,192 @@
+{
+ "task": {
+  "id": "layout__arm_core__aligned",
+  "kind": "layout",
+  "design": "vtr/arm_core",
+  "layout": "aligned",
+  "seeds": 5
+ },
+ "sizing": {
+  "width_2d": 55,
+  "height_2d": 50,
+  "width": 39,
+  "height": 38,
+  "tiles_2d": 2544,
+  "tiles_3d": 2664,
+  "cap_2d": {
+   "clb": 1872,
+   "complex_dsp": 84,
+   "spram": 56,
+   "io": 1616
+  },
+  "cap_3d": {
+   "clb": 1944,
+   "complex_dsp": 90,
+   "spram": 60,
+   "io": 2336
+  },
+  "demand": {
+   "io": 312,
+   "clb": 1060,
+   "complex_dsp": 0,
+   "spram": 40
+  },
+  "target_util": 0.8
+ },
+ "cols_per_layer": [
+  27,
+  5,
+  5
+ ],
+ "seeds": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "3d": {
+  "cpd": 2.2314261834031466e-08,
+  "wl": 165628.90033210206,
+  "error": null,
+  "per_seed": [
+   {
+    "succeeded": true,
+    "place_cpd": 2.25919e-08,
+    "place_wl": 99453.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 2.19439e-08,
+    "route_wl": 165022.0,
+    "seed": 1,
+    "rc": 0,
+    "error": null
+   },
+   {
+    "succeeded": true,
+    "place_cpd": 2.27971e-08,
+    "place_wl": 100543.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 2.30766e-08,
+    "route_wl": 165179.0,
+    "seed": 2,
+    "rc": 0,
+    "error": null
+   },
+   {
+    "succeeded": true,
+    "place_cpd": 2.26028e-08,
+    "place_wl": 100831.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 2.22445e-08,
+    "route_wl": 166581.0,
+    "seed": 3,
+    "rc": 0,
+    "error": null
+   },
+   {
+    "succeeded": true,
+    "place_cpd": 2.27381e-08,
+    "place_wl": 100958.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 2.2393100000000003e-08,
+    "route_wl": 165751.0,
+    "seed": 4,
+    "rc": 0,
+    "error": null
+   },
+   {
+    "succeeded": true,
+    "place_cpd": 2.27825e-08,
+    "place_wl": 100748.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 2.1932600000000003e-08,
+    "route_wl": 165616.0,
+    "seed": 5,
+    "rc": 0,
+    "error": null
+   }
+  ],
+  "t_s": 110,
+  "columns": [
+   [
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "clb"
+   ],
+   [
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "clb"
+   ]
+  ]
+ },
+ "t_total_s": 205
+}

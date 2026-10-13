@@ -1,0 +1,160 @@
+{
+ "task": {
+  "id": "layout__blob_merge__split_types",
+  "kind": "layout",
+  "design": "vtr/blob_merge",
+  "layout": "split_types",
+  "seeds": 5
+ },
+ "sizing": {
+  "width_2d": 30,
+  "height_2d": 38,
+  "width": 23,
+  "height": 26,
+  "tiles_2d": 1008,
+  "tiles_3d": 1008,
+  "cap_2d": {
+   "clb": 720,
+   "complex_dsp": 36,
+   "spram": 24,
+   "io": 1024
+  },
+  "cap_3d": {
+   "clb": 720,
+   "complex_dsp": 36,
+   "spram": 24,
+   "io": 1440
+  },
+  "demand": {
+   "io": 136,
+   "clb": 546,
+   "complex_dsp": 0,
+   "spram": 0
+  },
+  "target_util": 0.8
+ },
+ "cols_per_layer": [
+  15,
+  3,
+  3
+ ],
+ "seeds": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "3d": {
+  "cpd": 1.1973091297658736e-08,
+  "wl": 57375.56703159721,
+  "error": null,
+  "per_seed": [
+   {
+    "succeeded": true,
+    "place_cpd": 1.2800900000000001e-08,
+    "place_wl": 35458.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 1.1989200000000002e-08,
+    "route_wl": 58087.0,
+    "seed": 1,
+    "rc": 0,
+    "error": null
+   },
+   {
+    "succeeded": true,
+    "place_cpd": 1.3434400000000002e-08,
+    "place_wl": 34162.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 1.3096e-08,
+    "route_wl": 56223.0,
+    "seed": 2,
+    "rc": 0,
+    "error": null
+   },
+   {
+    "succeeded": true,
+    "place_cpd": 1.27743e-08,
+    "place_wl": 34790.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 1.09228e-08,
+    "route_wl": 57852.0,
+    "seed": 3,
+    "rc": 0,
+    "error": null
+   },
+   {
+    "succeeded": true,
+    "place_cpd": 1.3073900000000001e-08,
+    "place_wl": 33916.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 1.1978e-08,
+    "route_wl": 57438.0,
+    "seed": 4,
+    "rc": 0,
+    "error": null
+   },
+   {
+    "succeeded": true,
+    "place_cpd": 1.29374e-08,
+    "place_wl": 33782.0,
+    "cpd_source": "critical_path",
+    "route_cpd": 1.1978e-08,
+    "route_wl": 57296.0,
+    "seed": 5,
+    "rc": 0,
+    "error": null
+   }
+  ],
+  "t_s": 38,
+  "columns": [
+   [
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "dsp",
+    "clb",
+    "clb",
+    "clb",
+    "dsp",
+    "clb"
+   ],
+   [
+    "bram",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "bram",
+    "clb",
+    "clb",
+    "clb"
+   ]
+  ]
+ },
+ "t_total_s": 38
+}

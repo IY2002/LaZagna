@@ -136,3 +136,6 @@ logs/**
 !logs/*/
 !logs/*/.gitkeep
 !logs/README.md
+
+# Final study results (per-task JSON, 1.4 MB) are versioned so the write-up stays reproducible.
+!docs/study/results/*.json
