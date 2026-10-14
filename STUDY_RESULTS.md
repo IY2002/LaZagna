@@ -149,8 +149,8 @@ timing advantage depends on vertical links being no slower than about 1.5× an L
   Asynchronous-read memories stay in soft logic, because the architecture has no LUTRAM.
 - **Excluded designs:**
   - gemm_layer: about 7 h per routed configuration (pre-final RQ1 result only);
-  - lenet: synthesis-flow bug found late (enable FFs left after the last techmap); fix applied
-    to yosys.ys after the final run, untested;
+  - lenet: synthesis-flow bug found late (enable FFs left after the last techmap); fixed after
+    the final run (lenet now synthesizes and packs), but its multi-hour P&R is not in the results;
   - tdarknet_like.small: 3005 BRAMs require a 455×398 device;
   - boundtop and tpu.16x16.int8: multiply-driven nets in the source;
   - ch_intrinsics: benchmark bug (undeclared RAM enables);

@@ -157,5 +157,8 @@ Entries are added during the run (date, decision, reason).
   unaffected.
 - 2026-10-12 20:45: **lenet flow fix applied after the final run:** `dfflegalize` moved after the
   generic `techmap`. This changes the synthesis cache key, so future runs re-synthesize. It
-  has not been tested (no compute left before the write-up), and the final results were
-  produced with the previous script (key 725a3915).
+  was **verified on 2026-10-13**: lenet now synthesizes and packs (13285 CLB / 525 DSP / 966
+  BRAM). On eltwise and stereovision1, packed block counts are identical to the final-results
+  script (725a3915); only internal net names differ. The final results were produced with
+  725a3915. When comparing new runs against them, rerun the baselines (VPR placement depends
+  on net order).
