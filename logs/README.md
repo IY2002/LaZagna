@@ -20,3 +20,10 @@ tracked via `.gitkeep`, because SLURM won't start a job whose log directory is m
 Experiment data lives under the study work dir (default `campaign_work/study/`):
 `tasks/` (task lists), `runs/<jobid>/task_<n>/` (per-task VPR work dirs), `results/` (one JSON
 per task, read by `campaign/analyze.py`), and `archive/` (superseded result sets).
+
+`campaign_work/` (git-ignored) top level:
+- `prep_cache/`: shared synthesis + pack cache (mounted as `/prep`)
+- `study/`: the fixed-configuration experiments
+- `study_optuna/`: the structured layout searches
+- `characterization_final/`: the characterization table behind the design selection
+- `archive/`: old campaigns, probes and superseded characterizations
